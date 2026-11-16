@@ -1,0 +1,12 @@
+# 秘密情報(APIキーなど)は絶対にコミットしない
+.env
+.env.*
+
+# 依存パッケージ・ビルド結果
+node_modules/
+dist/
+
+# OS・エディタのゴミファイル
+.DS_Store
+Thumbs.db
+.vscode/
