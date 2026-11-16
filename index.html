@@ -4,9 +4,48 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>資格勉強パズル</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>資格勉強パズル</h1>
-  <p>ここから作っていきます。</p>
+  <main class="app">
+    <header class="app-header">
+      <h1>用語あてはめクイズ</h1>
+      <div class="mode" id="mode" role="group" aria-label="操作モード">
+        <button type="button" data-mode="line">線でつなぐ</button>
+        <button type="button" data-mode="sort">並び替え</button>
+      </div>
+      <p class="progress" id="progress"></p>
+    </header>
+
+    <section class="question" id="question">
+      <p class="tag" id="tag"></p>
+      <p class="stem" id="stem"></p>
+      <p class="hint" id="hint"></p>
+    </section>
+
+    <div class="board" id="board">
+      <svg class="lines" id="lines" aria-hidden="true"></svg>
+      <div class="column">
+        <h2>選択肢</h2>
+        <ul class="cards" id="terms"></ul>
+      </div>
+      <div class="column">
+        <h2>説明</h2>
+        <ul class="cards" id="meanings"></ul>
+      </div>
+    </div>
+
+    <section class="result" id="result" hidden></section>
+
+    <footer class="actions">
+      <button type="button" id="check" disabled>答え合わせ</button>
+      <button type="button" id="next" hidden>次の問題</button>
+    </footer>
+
+    <p class="source" id="source"></p>
+  </main>
+
+  <script src="data/questions.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
