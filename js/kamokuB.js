@@ -26,6 +26,8 @@
     timerChoices: document.getElementById("b-timer-choices"),
     code: document.getElementById("b-code"),
     traceBox: document.getElementById("b-trace-box"),
+    desk: document.getElementById("b-desk"),
+    play: document.getElementById("b-play"),
   };
 
   // プログラムを「触れる」表示にする部品(trace.js)
@@ -121,6 +123,9 @@
 
     render();
     startTimer();
+    // 前の問題で下までスクロールしていても、問題の最初から読めるように戻す
+    el.desk.scrollTop = 0;
+    if (el.play.getBoundingClientRect().top < 0) el.play.scrollIntoView({ block: "start" });
   }
 
   function render() {

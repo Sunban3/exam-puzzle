@@ -632,18 +632,48 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 .timer.over { border-color: var(--ng); color: #fff; background: var(--ng); }
 .b-title { margin: 0 0 6px; font-size: 1.05rem; font-weight: 800; }
 #b-stem { font-weight: normal; line-height: 1.7; } /* 長文なので太字にしない */
+/* ===== 科目B：画面の並べ方 ===== */
+/* 1問題を読む → 2手を動かす → 3答える の順に、見出しで区切る */
+.area-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 8px;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+.area-no {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8rem;
+}
+.b-paper .question { margin-top: 0; }
+.b-paper .stem { font-size: 1rem; }
+.b-desk .trace { margin: 0 0 10px; }
+.b-answer .choices { margin-top: 0; }
+.b-answer {
+  /* 答える場所だと一目で分かるように、色つきの枠で囲む */
+  border-top: 3px solid var(--accent);
+  margin-top: 16px;
+}
+
 .memo-box {
-  margin-top: 12px;
+  display: block;
+  padding: 10px 12px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
 }
-.memo-box summary { padding: 10px 14px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+.memo-title { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 700; }
 .memo-box textarea {
   display: block;
-  width: calc(100% - 28px);
-  margin: 0 14px 14px;
-  padding: 10px;
+  width: 100%;
+  padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg);
@@ -653,6 +683,28 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
   font-size: 0.85rem;
   resize: vertical;
 }
+
+/* 広い画面：左に問題、右に作業と解答。右側は画面に残り続ける */
+@media (min-width: 960px) {
+  /* 科目Bを解いている間だけ、ページの横幅を広げる */
+  .app:has(#b-play:not([hidden])) { max-width: 1320px; }
+
+  .b-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .b-desk {
+    position: sticky;
+    top: 56px;                       /* タイマーの下 */
+    max-height: calc(100vh - 64px);  /* 画面に収まる高さ */
+    overflow-y: auto;                /* 右側だけでスクロールできる */
+    padding: 0 4px 16px;
+  }
+  .b-answer { margin-top: 8px; }
+}
+
 .time-used { margin: 0 0 6px; font-weight: 600; }
 .time-used.over { color: var(--ng); }
 .point { white-space: pre-wrap; }
