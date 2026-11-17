@@ -5,7 +5,15 @@ window.App = window.App || {};
   "use strict";
 
   const NUMBERS = ["1", "2", "3", "4", "5", "6"];
-  const YEARS = { R5: "令和5年度", R6: "令和6年度", R7: "令和7年度", R8: "令和8年度" };
+  // 年度コード → 出典に書く試験名
+  const EXAMS = {
+    H31S: "平成31年度 春期 基本情報技術者試験 午前",
+    R1A: "令和元年度 秋期 基本情報技術者試験 午前",
+    R5: "令和5年度 基本情報技術者試験 科目A 公開問題",
+    R6: "令和6年度 基本情報技術者試験 科目A 公開問題",
+    R7: "令和7年度 基本情報技術者試験 科目A 公開問題",
+    R8: "令和8年度 基本情報技術者試験 科目A 公開問題",
+  };
 
   // 文字は必ず textContent で入れる(innerHTML は使わない = XSS対策)
   function make(tag, className, text) {
@@ -26,7 +34,7 @@ window.App = window.App || {};
 
   // 出典の文字列を、データ(年度・問番号・改変内容)から組み立てる
   function sourceText(q, notes = []) {
-    const base = `出典：${YEARS[q.year]} 基本情報技術者試験 科目A 公開問題 問${q.no}`;
+    const base = `出典：${EXAMS[q.year]} 問${q.no}`;
     const all = [q.note, ...notes].filter(Boolean);
     return all.length ? `${base}(${all.join("、")})` : base;
   }
