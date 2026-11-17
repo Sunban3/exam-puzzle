@@ -58,6 +58,12 @@
           <p class="hint" id="m-hint">選択肢をタップしてから、正しい説明をタップしよう</p>
         </section>
 
+        <!-- 計算問題のときだけ出すメモ欄(問題と選択肢のあいだ) -->
+        <label class="memo-box calc-memo" id="m-memo-box" hidden>
+          <span class="memo-title">計算メモ</span>
+          <textarea id="m-memo" rows="4" placeholder="例）1Gバイト ＝ 2の30乗 → 2の30乗 ÷ 2の10乗 ＝ 2の20乗 …"></textarea>
+        </label>
+
         <div class="board" id="m-board">
           <svg class="lines" id="m-lines" aria-hidden="true"></svg>
           <div class="column">
@@ -125,6 +131,12 @@
           <p class="stem" id="c-stem"></p>
           <div class="extras" id="c-extras"></div>
         </section>
+
+        <!-- 計算問題のときだけ出すメモ欄(問題と選択肢のあいだ) -->
+        <label class="memo-box calc-memo" id="c-memo-box" hidden>
+          <span class="memo-title">計算メモ</span>
+          <textarea id="c-memo" rows="4" placeholder="例）1Gバイト ＝ 2の30乗 → 2の30乗 ÷ 2の10乗 ＝ 2の20乗 …"></textarea>
+        </label>
 
         <ol class="choices" id="c-choices"></ol>
 

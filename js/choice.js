@@ -12,6 +12,8 @@
   const el = {
     tag: document.getElementById("c-tag-text"),
     calcBadge: document.getElementById("c-calc-badge"),
+    memoBox: document.getElementById("c-memo-box"),
+    memo: document.getElementById("c-memo"),
     record: document.getElementById("c-record"),
     stem: document.getElementById("c-stem"),
     extras: document.getElementById("c-extras"),
@@ -34,6 +36,8 @@
 
     el.tag.textContent = q.tag;
     el.calcBadge.hidden = !q.calc;
+    el.memoBox.hidden = !q.calc; // メモ欄は計算問題のときだけ
+    el.memo.value = "";          // 問題ごとに白紙から
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
     el.source.textContent = sourceText(q);

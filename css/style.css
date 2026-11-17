@@ -820,3 +820,6 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 .sure-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .sure-label { font-size: 0.85rem; color: var(--muted); }
 .sure-row .chip { padding: 4px 14px; }
+
+/* 計算問題のメモ欄(問題と選択肢のあいだ) */
+.calc-memo { margin: -4px 0 16px; }

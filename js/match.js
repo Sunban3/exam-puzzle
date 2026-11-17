@@ -17,6 +17,8 @@
   const el = {
     tag: document.getElementById("m-tag-text"),
     calcBadge: document.getElementById("m-calc-badge"),
+    memoBox: document.getElementById("m-memo-box"),
+    memo: document.getElementById("m-memo"),
     hint: document.getElementById("m-hint"),
     choices: document.getElementById("m-choices"),
     record: document.getElementById("m-record"),
@@ -69,6 +71,8 @@
 
     el.tag.textContent = q.tag;
     el.calcBadge.hidden = !q.calc;
+    el.memoBox.hidden = !q.calc; // メモ欄は計算問題のときだけ
+    el.memo.value = "";          // 問題ごとに白紙から
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
     el.source.textContent = kind === "match" ? sourceText(q, [matchNote(q)]) : sourceText(q);
