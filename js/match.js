@@ -257,7 +257,7 @@
     box.classList.toggle("perfect", allCorrect);
     box.append(
       make("p", "score", allCorrect ? `全問正解！ ${correctCount} / ${q.items.length}` : `${correctCount} / ${q.items.length} 正解`),
-      make("p", "next-review", records.nextText(rec))
+      session().reviewBox(q, rec)
     );
 
     q.items.forEach((item, t) => {
@@ -297,7 +297,7 @@
     box.classList.toggle("perfect", ok);
     box.append(
       make("p", "score", ok ? "正解！" : `不正解… 正解は ${NUMBERS[q.answer]}`),
-      make("p", "next-review", records.nextText(rec))
+      session().reviewBox(q, rec)
     );
     box.hidden = false;
     el.next.hidden = false;

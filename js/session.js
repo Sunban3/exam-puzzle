@@ -114,8 +114,10 @@
 
       const qu = records.queue(mode, player.questions());
       const ready = qu.due + qu.fresh;
+      const quota = records.newQuota(state.target, qu.fresh);
       el.setupInfo.textContent = ready >= state.target
-        ? `復習 ${qu.due}問・新しい問題 ${qu.fresh}問 の中から出題します`
+        ? `復習 ${qu.due}問・新しい問題 ${qu.fresh}問 の中から出題します` +
+          (quota && qu.due > state.target - quota ? `（新しい問題を${quota}問は必ず入れます）` : "")
         : `復習と新しい問題は ${ready}問。足りない分は、次の復習が近い問題から出します`;
 
       el.calcRow.hidden = !hasCalc();
@@ -155,6 +157,41 @@
       state.results.push({ q, ok, ...extra });
       el.stats.textContent = statsText();
       return records.add(mode, q.id, ok);
+    }
+
+    // 答えたあとに出す「次の復習」の欄
+    // 正解したときだけ「自信あり／たまたま」を選べる。何も押さなければ「自信あり」
+    function reviewBox(q, rec) {
+      const box = make("div", "review-box");
+      const text = make("p", "next-review", records.nextText(rec));
+      box.append(text);
+      const result = state.results[state.results.length - 1];
+      if (!result || !result.ok) return box;
+
+      const row = make("div", "sure-row");
+      row.append(make("span", "sure-label", "この正解、自信ある？"));
+      const buttons = [
+        { unsure: false, label: "自信あり" },
+        { unsure: true, label: "たまたま" },
+      ].map(({ unsure, label }) => {
+        const btn = make("button", "chip", label);
+        btn.type = "button";
+        btn.addEventListener("click", () => {
+          const updated = records.setUnsure(mode, q.id, unsure);
+          result.unsure = unsure;                       // 結果画面の一覧用
+          text.textContent = records.nextText(updated); // 次の復習の日をその場で書き換える
+          paint();
+        });
+        return { btn, unsure };
+      });
+      // 押されている方のボタンを、色つきにする
+      function paint() {
+        buttons.forEach(({ btn, unsure }) => btn.setAttribute("aria-pressed", String(Boolean(result.unsure) === unsure)));
+      }
+      paint();
+      row.append(...buttons.map((b) => b.btn));
+      box.append(row);
+      return box;
     }
 
     function isLast() {
@@ -232,25 +269,34 @@
       });
       nodes.push(table);
 
-      // 間違えた問題
+      // 間違えた問題・たまたま正解した問題
       const wrong = state.results.filter((r) => !r.ok);
       if (wrong.length) {
-        const list = make("div", "wrong-list");
-        list.append(make("p", "summary-section", `間違えた問題（${wrong.length}問）`));
-        wrong.forEach(({ q }) => {
-          const item = make("p", "wrong-item");
-          const stem = q.stem.split("\n")[0];
-          item.append(
-            make("span", "wrong-tag", q.tag.split("：").pop()),
-            make("span", null, stem.length > 60 ? `${stem.slice(0, 60)}…` : stem)
-          );
-          list.append(item);
-        });
-        list.append(make("p", "wrong-note", "間違えた問題は、次の学習のときに優先して出ます"));
-        nodes.push(list);
+        nodes.push(questionList(`間違えた問題（${wrong.length}問）`, wrong, "間違えた問題は、次の学習のときに優先して出ます"));
+      }
+      const lucky = state.results.filter((r) => r.ok && r.unsure);
+      if (lucky.length) {
+        nodes.push(questionList(`たまたま正解した問題（${lucky.length}問）`, lucky, "明日また出ます。今のうちに解説を読み直しておこう"));
       }
 
       el.summaryBody.replaceChildren(...nodes);
+    }
+
+    // 結果画面の問題一覧(ジャンル名と、問題の最初の60文字)
+    function questionList(title, results, note) {
+      const list = make("div", "wrong-list");
+      list.append(make("p", "summary-section", title));
+      results.forEach(({ q }) => {
+        const item = make("p", "wrong-item");
+        const stem = q.title || q.stem.split("\n")[0]; // 科目Bは長文なので、短い名前を使う
+        item.append(
+          make("span", "wrong-tag", q.tag.split("：").pop()),
+          make("span", null, stem.length > 60 ? `${stem.slice(0, 60)}…` : stem)
+        );
+        list.append(item);
+      });
+      list.append(make("p", "wrong-note", note));
+      return list;
     }
 
     // 秒数を「4分12秒」の形にする
@@ -296,6 +342,7 @@
 
     return {
       answered,
+      reviewBox,
       next,
       isLast,
       // ジャンルが変わったら、問題を選び直して設定画面へ

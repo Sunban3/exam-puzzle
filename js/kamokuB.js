@@ -155,7 +155,7 @@
       make("p", "score", ok ? "正解！" : `不正解… 正解は ${NUMBERS[q.answer]}`),
       make("p", over ? "time-used over" : "time-used",
         `かかった時間 ${formatClock(seconds)}（目安 ${state.minutes}分${over ? "・オーバー" : "以内"}）`),
-      make("p", "next-review", records.nextText(rec))
+      session().reviewBox(q, rec)
     );
 
     // 解き方のポイント(データにあれば)

@@ -9,6 +9,7 @@
   // 保存データの形
   // {
   //   match:  { "fe-r05-a-03": { attempts: 3, correct: 2, history: [{ at: 1731800000000, ok: true }, ...] } },
+  //   (正解したけど自信がなかった回は { at, ok: true, unsure: true })
   //   choice: { ... }
   // }
 
@@ -48,6 +49,18 @@
     return rec;
   }
 
+  // 最後に解いた回を「たまたま正解」にする(unsure が false なら「自信あり」に戻す)
+  // 正解率(correct)はそのまま。復習の間隔だけが変わる
+  function setUnsure(mode, id, unsure) {
+    const rec = get(mode, id);
+    const last = rec?.history?.[rec.history.length - 1];
+    if (!last || !last.ok) return rec; // 不正解の回は、もともと間隔が0に戻るので何もしない
+    if (unsure) last.unsure = true;
+    else delete last.unsure;
+    save();
+    return rec;
+  }
+
   // モード全体のまとめ(解いた問題数・正解率)
   function summary(mode, ids) {
     let solved = 0;
@@ -69,14 +82,25 @@
   const DAY = 24 * 60 * 60 * 1000;
   const INTERVALS = [0, 1, 3, 7, 14, 30]; // 連続正解 0回,1回,2回,3回,4回,5回以上
 
-  // 最後から数えて、何回連続で正解しているか
+  // 「自信をもって正解した」回か(たまたま正解は数えない)
+  const isSure = (h) => h.ok && h.unsure !== true;
+
+  // 最後から数えて、何回連続で「自信をもって」正解しているか
   function streakOf(rec) {
     let n = 0;
-    for (let i = rec.history.length - 1; i >= 0 && rec.history[i].ok; i--) n++;
+    for (let i = rec.history.length - 1; i >= 0 && isSure(rec.history[i]); i--) n++;
     return n;
   }
 
+  // 最後の回が「たまたま正解」か
+  function lastUnsure(rec) {
+    const last = rec.history[rec.history.length - 1];
+    return Boolean(last && last.ok && last.unsure === true);
+  }
+
   function intervalDays(rec) {
+    // たまたま正解は「覚えた」とは言えないので、間隔をのばさずに明日また出す
+    if (lastUnsure(rec)) return INTERVALS[1];
     return INTERVALS[Math.min(streakOf(rec), INTERVALS.length - 1)];
   }
 
@@ -92,10 +116,20 @@
     return dueAt(rec) <= now ? "due" : "later";
   }
 
+  // 1回のうち、新しい問題に必ず空けておく割合
+  // (復習がたまっても、新しい問題がまったく出ない日を作らないため)
+  const NEW_SHARE = 1 / 3;
+
+  // n問のうち、新しい問題を何問入れるか(新しい問題が足りなければ、ある分だけ)
+  function newQuota(n, fresh) {
+    return Math.min(fresh, Math.ceil(n * NEW_SHARE));
+  }
+
   // 1回分(n問)の出題リストを作る
-  // 1. 復習の時期が来た問題(時期を過ぎているものほど先)
+  // 1. 復習の時期が来た問題(時期を過ぎているものほど先)。ただし新しい問題の枠は空けておく
   // 2. まだ解いていない問題(データの順)
-  // 3. それでも足りなければ、次の復習が近い問題から
+  // 3. 枠に入りきらなかった復習
+  // 4. それでも足りなければ、次の復習が近い問題から
   // calcEvery を指定すると、その問題数ごとに1回、計算問題(calc: true)を入れる
   // skipCalc を true にすると、計算問題を出さない
   function plan(mode, questions, n, { calcEvery = 0, skipCalc = false } = {}) {
@@ -106,11 +140,14 @@
       return { index, st, calc: Boolean(q.calc), due: st === "new" ? 0 : dueAt(rec) };
     });
     const byDue = (a, b) => a.due - b.due;
-    const ordered = [
-      ...list.filter((x) => x.st === "due").sort(byDue),
-      ...list.filter((x) => x.st === "new"),
-      ...list.filter((x) => x.st === "later").sort(byDue),
-    ].filter((x) => !(skipCalc && x.calc));
+    const usable = list.filter((x) => !(skipCalc && x.calc));
+    const due = usable.filter((x) => x.st === "due").sort(byDue);
+    const fresh = usable.filter((x) => x.st === "new");
+    const later = usable.filter((x) => x.st === "later").sort(byDue);
+
+    // 復習は「n問 － 新しい問題の枠」までにする。入りきらなかった復習は、新しい問題のあとに回す
+    const dueRoom = n - newQuota(n, fresh.length);
+    const ordered = [...due.slice(0, dueRoom), ...fresh, ...due.slice(dueRoom), ...later];
     if (!calcEvery) return ordered.slice(0, n).map((x) => x.index);
 
     // 計算問題と、それ以外に分けてから組み合わせる
@@ -168,13 +205,14 @@
   }
 
   function nextText(rec) {
+    if (lastUnsure(rec)) return "次の復習：明日（たまたま正解なので、間隔はのばさない）";
     const days = intervalDays(rec);
     if (days === 0) return "次の復習：このあともう一度出ます";
     return `次の復習：${days === 1 ? "明日" : `${days}日後`}（${streakOf(rec)}回連続正解）`;
   }
 
   window.App.records = {
-    get, add, summary, plan, queue,
+    get, add, setUnsure, summary, plan, queue, newQuota,
     questionText, summaryText, queueText, laterText, nextText,
   };
 })();

@@ -813,3 +813,10 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 .trace-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .code-viewer .comment { color: var(--muted); }
 .code-viewer .str { color: var(--ok); }
+
+/* ===== 答えたあと：自信あり／たまたま ===== */
+.review-box { display: grid; gap: 8px; }
+.review-box .next-review { margin: 0; }
+.sure-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sure-label { font-size: 0.85rem; color: var(--muted); }
+.sure-row .chip { padding: 4px 14px; }

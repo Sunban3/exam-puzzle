@@ -72,7 +72,7 @@
     box.classList.toggle("perfect", ok);
     box.append(
       make("p", "score", ok ? "正解！" : `不正解… 正解は ${NUMBERS[q.answer]}`),
-      make("p", "next-review", records.nextText(rec))
+      session().reviewBox(q, rec)
     );
 
     // あてはめデータがある問題は、ほかの選択肢が何の説明なのかも見せる
