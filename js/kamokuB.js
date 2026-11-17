@@ -15,6 +15,7 @@
     tag: document.getElementById("b-tag"),
     record: document.getElementById("b-record"),
     pastNote: document.getElementById("b-past-note"),
+    techHint: document.getElementById("b-tech-hint"),
     title: document.getElementById("b-title"),
     stem: document.getElementById("b-stem"),
     extras: document.getElementById("b-extras"),
@@ -122,6 +123,7 @@
     el.next.hidden = true;
     el.record.textContent = records.questionText(records.get(MODE, q.id));
     window.App.notes.showPast(el.pastNote, q); // 前回の自分のメモ(あれば)
+    window.App.technique.showHint(el.techHint, q); // 使えるテクニックのヒント(あれば)
 
     render();
     startTimer();
@@ -160,8 +162,11 @@
       session().reviewBox(q, rec)
     );
 
-    // 解き方のポイント(データにあれば)
-    if (q.point) {
+    // 解き方：テクニックがあればテクニックの名前つきで、なければ解き方のポイントだけ
+    const tech = window.App.technique.explain(q);
+    if (tech) {
+      box.append(tech);
+    } else if (q.point) {
       const tip = make("div", "original");
       tip.append(make("p", "original-title", "解き方のポイント"), make("p", "point", q.point));
       box.append(tip);

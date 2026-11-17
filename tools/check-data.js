@@ -84,14 +84,21 @@ console.log(`科目B ${bQuestions.length}問`);
 // すべての計算問題にテクニックがあり、存在しないテクニックや問題を指していないか
 const TECH = window.TECHNIQUES || {};
 const TECH_FOR = window.TECHNIQUE_FOR || {};
+// 科目Aの計算問題は手順(steps)が必要。科目Bは問題データの point を使うので hint だけでよい
 const calcIds = new Set(questions.filter((q) => q.calc).map((q) => q.id));
-calcIds.forEach((id) => {
-  if (!TECH_FOR[id]) errors.push(`${id}: 計算問題なのにテクニックがない`);
+const bIds = new Set(bQuestions.map((q) => q.id));
+[...calcIds, ...bIds].forEach((id) => {
+  if (!TECH_FOR[id]) errors.push(`${id}: テクニックがない`);
 });
 Object.entries(TECH_FOR).forEach(([id, f]) => {
-  if (!calcIds.has(id)) errors.push(`${id}: テクニックがあるのに計算問題ではない`);
+  if (!calcIds.has(id) && !bIds.has(id)) errors.push(`${id}: テクニックがあるのに計算問題でも科目Bでもない`);
   if (!TECH[f.tech]) errors.push(`${id}: テクニック ${f.tech} が一覧にない`);
-  if (!f.hint || !Array.isArray(f.steps) || !f.steps.length) errors.push(`${id}: hint か steps がない`);
+  if (!f.hint) errors.push(`${id}: hint がない`);
+  if (calcIds.has(id) && (!Array.isArray(f.steps) || !f.steps.length)) errors.push(`${id}: steps がない`);
+});
+const usedTech = new Set(Object.values(TECH_FOR).map((f) => f.tech));
+Object.keys(TECH).forEach((k) => {
+  if (!usedTech.has(k)) errors.push(`テクニック ${k}: どの問題にも使われていない`);
 });
 console.log(`テクニック ${Object.keys(TECH).length}種類`);
 

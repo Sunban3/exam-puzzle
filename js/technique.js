@@ -30,18 +30,20 @@
   }
 
   // 答えたあと：テクニックを使った解き方
+  // 手順(steps)があれば番号つきで、なければ問題データの「解き方のポイント」(point)を出す
   function explain(q) {
     const t = of(q);
     if (!t) return null;
     const box = make("div", "original tech-explain");
-    const steps = make("ol", "tech-steps");
-    t.steps.forEach((s) => steps.append(make("li", null, s)));
-    box.append(
-      make("p", "original-title", "解き方のテクニック"),
-      make("p", "tech-name", t.name),
-      steps,
-      make("p", "tech-lesson", `ほかの問題でも：${t.lesson}`)
-    );
+    box.append(make("p", "original-title", "解き方のテクニック"), make("p", "tech-name", t.name));
+    if (t.steps?.length) {
+      const steps = make("ol", "tech-steps");
+      t.steps.forEach((s) => steps.append(make("li", null, s)));
+      box.append(steps);
+    } else if (q.point) {
+      box.append(make("p", "point", q.point));
+    }
+    box.append(make("p", "tech-lesson", `ほかの問題でも：${t.lesson}`));
     return box;
   }
 
