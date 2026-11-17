@@ -24,7 +24,15 @@
     source: document.getElementById("b-source"),
     timer: document.getElementById("b-timer"),
     timerChoices: document.getElementById("b-timer-choices"),
+    code: document.getElementById("b-code"),
+    traceBox: document.getElementById("b-trace-box"),
   };
+
+  // プログラムを「触れる」表示にする部品(trace.js)
+  const trace = window.App.createTrace({
+    codeEl: el.code,
+    tableEl: document.getElementById("b-trace"),
+  });
 
   const state = {
     index: 0,
@@ -98,7 +106,12 @@
     el.tag.textContent = q.tag;
     el.title.textContent = q.title || "";
     el.stem.textContent = q.stem;
-    el.extras.replaceChildren(renderExtras(q));
+    // プログラムは trace が「タップできる形」で表示するので、renderExtras からは外す
+    el.extras.replaceChildren(renderExtras({ ...q, code: undefined }));
+    const hasCode = Boolean(q.code);
+    el.code.hidden = !hasCode;
+    el.traceBox.hidden = !hasCode;
+    trace.reset(q.code); // 変数・トレース表・いまここ印を白紙に戻す
     el.source.textContent = sourceText(q);
     el.memo.value = ""; // メモは問題ごとに白紙から
     el.result.hidden = true;

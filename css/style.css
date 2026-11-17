@@ -670,3 +670,84 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 .time-mark.ok { color: var(--ok); font-weight: 700; }
 .time-mark.ng { color: var(--ng); font-weight: 700; }
 .time-sec { font-variant-numeric: tabular-nums; }
+
+/* ===== 科目B：タップできるプログラム ===== */
+.code-viewer {
+  margin-top: 12px;
+  padding: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-family: ui-monospace, "BIZ UDGothic", Consolas, monospace;
+  font-size: 0.92rem;
+  overflow-x: auto;
+}
+.code-line {
+  display: grid;
+  grid-template-columns: 3em 1fr;
+  align-items: baseline;
+  position: relative;
+}
+.code-line .line-body { white-space: pre; padding-right: 12px; }
+.line-no {
+  all: unset;
+  cursor: pointer;
+  text-align: right;
+  padding-right: 10px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.line-no:focus-visible { outline: 2px solid var(--accent); }
+/* 「いまここ」の行 */
+.code-line.current { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.code-line.current .line-no { color: var(--accent); font-weight: bold; }
+.code-line.current .line-no::before { content: "▶ "; }
+.code-viewer .kw { color: var(--muted); font-weight: bold; }
+/* 変数はボタンだけど、文字と同じ見た目にしておく */
+.var {
+  all: unset;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0 1px;
+  border-bottom: 1px dotted var(--muted);
+}
+.var:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.var:focus-visible { outline: 2px solid var(--accent); }
+.var.picked {
+  background: color-mix(in srgb, var(--pair) 22%, transparent);
+  border-bottom: 2px solid var(--pair);
+  color: var(--pair);
+  font-weight: bold;
+}
+
+/* ===== 科目B：トレース表 ===== */
+.trace {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.trace-title { margin: 0 0 4px; font-size: 1rem; }
+.trace-hint { margin: 0 0 8px; font-size: 0.8rem; color: var(--muted); }
+.trace-empty { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.trace-table th { border-bottom: 3px solid var(--pair, var(--border)); white-space: nowrap; }
+.trace-var { color: var(--pair); font-family: ui-monospace, Consolas, monospace; }
+.trace-del {
+  all: unset;
+  cursor: pointer;
+  margin-left: 6px;
+  color: var(--muted);
+}
+.trace-step { color: var(--muted); text-align: center; }
+.trace-table input {
+  width: 4.5em;
+  font: inherit;
+  font-family: ui-monospace, Consolas, monospace;
+  padding: 2px 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+}
+.trace-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
