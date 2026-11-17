@@ -16,6 +16,8 @@
   //   shown()     … 画面に表示されたとき
   //   calcIsExtra … true なら、計算問題は「5問に1回」のときだけ出す(オフなら出さない)
   //   emptyText   … 問題が1つもないときに設定画面に出す文(なければ、ジャンルの案内)
+  //   countStep   … ＋−ボタンで何問ずつ増減するか(なければ5)
+  //   defaultCount… 最初の問題数(なければ15)
   function createSession({ mode, prefix, player }) {
     const $ = (name) => document.getElementById(`${prefix}-${name}`);
     const el = {
@@ -36,6 +38,9 @@
       back: $("back"),
     };
 
+    // 何問ずつ増減するか・最初は何問か(モードごとに変えられる)
+    const step = player.countStep || STEP;
+    const defaultCount = player.defaultCount || DEFAULT_COUNT;
     const COUNT_KEY = `exam-puzzle:count:${mode}`;
     const CALC_KEY = `exam-puzzle:calc:${mode}`;
     const state = {
@@ -48,7 +53,7 @@
 
     function loadTarget() {
       const n = Number(storage.get(COUNT_KEY));
-      return Number.isInteger(n) && n > 0 ? n : DEFAULT_COUNT;
+      return Number.isInteger(n) && n > 0 ? n : defaultCount;
     }
 
     // 出せる問題の中に計算問題があるか(なければ設定を出さない)
@@ -66,7 +71,7 @@
     // 選べる範囲: 最小は5問(問題がそれより少なければ全部)、最大は全問
     function limits() {
       const total = available();
-      return { min: Math.min(STEP, total), max: total };
+      return { min: Math.min(step, total), max: total };
     }
 
     function clampTarget() {
@@ -120,9 +125,9 @@
     function changeTarget(diff) {
       state.target += diff;
       clampTarget();
-      // 5の倍数にそろえる(全部を選んだときは除く)
+      // step の倍数にそろえる(全部を選んだときは除く)
       const { max } = limits();
-      if (state.target < max) state.target = Math.max(limits().min, Math.round(state.target / STEP) * STEP);
+      if (state.target < max) state.target = Math.max(limits().min, Math.round(state.target / step) * step);
       storage.set(COUNT_KEY, String(state.target));
       showSetup();
     }
@@ -283,8 +288,8 @@
       storage.set(CALC_KEY, state.calcOn ? "on" : "off");
       showSetup(); // 出せる問題数が変わることがあるので、表示を更新
     });
-    el.minus.addEventListener("click", () => changeTarget(-STEP));
-    el.plus.addEventListener("click", () => changeTarget(STEP));
+    el.minus.addEventListener("click", () => changeTarget(-step));
+    el.plus.addEventListener("click", () => changeTarget(step));
     el.start.addEventListener("click", start);
     el.again.addEventListener("click", start);
     el.back.addEventListener("click", showSetup);
