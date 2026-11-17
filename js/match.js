@@ -1,10 +1,11 @@
-// 用語あてはめモード
+// 用語あてはめモード(問題を表示して、答え合わせをする役)
 (() => {
   "use strict";
 
   const { NUMBERS, make, shuffle, sourceText, renderExtras, matchItems, matchNote, records, filter } = window.App;
   const MODE = "match";
   const SVG_NS = "http://www.w3.org/2000/svg";
+  const session = () => window.App.sessions[MODE]; // 流れの管理役(app.js で作られる)
 
   // あてはめ形式のデータ(match があるもの)だけを使う
   const all = (window.QUESTIONS || [])
@@ -13,8 +14,8 @@
   let questions = all.filter(filter.matches); // ジャンルで絞り込んだ問題
 
   const el = {
-    progress: document.getElementById("m-progress"),
     tag: document.getElementById("m-tag"),
+    record: document.getElementById("m-record"),
     stem: document.getElementById("m-stem"),
     extras: document.getElementById("m-extras"),
     board: document.getElementById("m-board"),
@@ -25,13 +26,6 @@
     check: document.getElementById("m-check"),
     next: document.getElementById("m-next"),
     source: document.getElementById("m-source"),
-    stats: document.getElementById("m-stats"),
-    record: document.getElementById("m-record"),
-    play: document.getElementById("m-play"),
-    done: document.getElementById("m-done"),
-    doneTitle: document.getElementById("m-done-title"),
-    doneText: document.getElementById("m-done-text"),
-    practice: document.getElementById("m-practice"),
   };
 
   const state = {
@@ -42,7 +36,6 @@
     justPaired: null,
     checked: false,
     entering: false,
-    practice: false,   // true なら「全問を順番に解く」、false なら復習サイクルで出す
   };
 
   const colorOf = (t) => `var(--c${(t % 4) + 1})`;
@@ -52,8 +45,8 @@
     return found === undefined ? null : Number(found);
   }
 
-  // ----- 問題を読み込む -----
-  function load(i) {
+  // ----- 問題を表示する -----
+  function play(i) {
     const q = questions[i];
     Object.assign(state, {
       index: i,
@@ -65,76 +58,21 @@
       entering: true,
     });
 
-    el.play.hidden = false;
-    el.done.hidden = true;
-    el.progress.textContent = state.practice ? `全問モード ${i + 1} / ${questions.length}` : "復習モード";
     el.tag.textContent = q.tag;
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
     el.source.textContent = sourceText(q, [matchNote(q)]);
-    showRecord(q);
     el.result.hidden = true;
     el.result.replaceChildren();
     el.next.hidden = true;
     el.check.hidden = false;
+    showRecord(q);
 
     render();
   }
 
-  // ----- 学習記録の表示 -----
   function showRecord(q) {
     el.record.textContent = records.questionText(records.get(MODE, q.id));
-    el.stats.textContent = statsText();
-  }
-
-  function statsText() {
-    const ids = questions.map((x) => x.id);
-    return `${records.queueText(records.queue(MODE, questions))}　${records.summaryText(records.summary(MODE, ids))}`;
-  }
-
-  // ----- 次の問題へ -----
-  function goNext() {
-    if (state.practice) {
-      load((state.index + 1) % questions.length);
-      return;
-    }
-    const i = records.pick(MODE, questions, questions[state.index]?.id);
-    if (i < 0) showDone();
-    else load(i);
-  }
-
-  // 今日の分が終わったときの画面
-  function showDone() {
-    el.play.hidden = true;
-    el.done.hidden = false;
-    el.doneTitle.textContent = "今日の分はおわり！";
-    el.practice.hidden = false;
-    el.progress.textContent = "復習モード";
-    el.stats.textContent = statsText();
-    const qu = records.queue(MODE, questions);
-    el.doneText.textContent = `次の復習は${records.laterText(qu.soonest)}。それまでは、ほかの勉強をしたり休んだりしよう。`;
-  }
-
-  // 絞り込んだ結果、問題が1つもないとき
-  function showEmpty() {
-    el.play.hidden = true;
-    el.done.hidden = false;
-    el.doneTitle.textContent = "このジャンルの問題はありません";
-    el.doneText.textContent = "ジャンルの選び方を変えてみてね。";
-    el.practice.hidden = true;
-    el.progress.textContent = "";
-    el.stats.textContent = "";
-  }
-
-  function start() {
-    state.practice = false;
-    if (!questions.length) {
-      showEmpty();
-      return;
-    }
-    const i = records.pick(MODE, questions);
-    if (i < 0) showDone();
-    else load(i);
   }
 
   // ----- 画面を作る(状態 → 見た目) -----
@@ -277,7 +215,9 @@
     rubber.setAttribute("d", curve(a, b));
   });
 
-  window.addEventListener("resize", drawLines);
+  window.addEventListener("resize", () => {
+    if (questions.length) drawLines();
+  });
 
   // ----- 答え合わせ -----
   function check() {
@@ -287,15 +227,16 @@
 
     const correctCount = q.items.filter((_, t) => state.pairs[t] === t).length;
     const allCorrect = correctCount === q.items.length;
-    const rec = records.add(MODE, q.id, allCorrect); // 4つ全部合っていたら「正解」として記録
+    const rec = session().answered(q, allCorrect); // 4つ全部合っていたら「正解」として記録
     showRecord(q);
+
     const box = el.result;
     box.replaceChildren();
     box.classList.toggle("perfect", allCorrect);
     box.append(
-      make("p", "score", allCorrect ? `全問正解！ ${correctCount} / ${q.items.length}` : `${correctCount} / ${q.items.length} 正解`)
+      make("p", "score", allCorrect ? `全問正解！ ${correctCount} / ${q.items.length}` : `${correctCount} / ${q.items.length} 正解`),
+      make("p", "next-review", records.nextText(rec))
     );
-    box.append(make("p", "next-review", records.nextText(rec)));
 
     q.items.forEach((item, t) => {
       if (state.pairs[t] === t) return;
@@ -315,25 +256,17 @@
     box.hidden = false;
     el.check.hidden = true;
     el.next.hidden = false;
-    el.next.textContent = state.practice && state.index + 1 >= questions.length ? "最初から" : "次の問題";
+    el.next.textContent = session().isLast() ? "結果を見る" : "次の問題";
   }
 
   el.check.addEventListener("click", check);
-  el.next.addEventListener("click", goNext);
-  el.practice.addEventListener("click", () => {
-    state.practice = true;
-    load(0);
-  });
+  el.next.addEventListener("click", () => session().next());
 
   // ----- 外から使う窓口 -----
   window.App.match = {
-    count: () => questions.length,
-    // ジャンルが変わったら、問題を選び直して最初から
-    refresh() {
-      questions = all.filter(filter.matches);
-      start();
-    },
-    start,
+    questions: () => questions,
+    play,
+    refresh() { questions = all.filter(filter.matches); },
     // 非表示から表示に切り替わったら、カードの位置が変わるので線を引き直す
     shown() { drawLines(); },
   };

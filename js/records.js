@@ -92,23 +92,24 @@
     return dueAt(rec) <= now ? "due" : "later";
   }
 
-  // 次に出す問題を選ぶ(見つからなければ -1)
+  // 1回分(n問)の出題リストを作る
   // 1. 復習の時期が来た問題(時期を過ぎているものほど先)
   // 2. まだ解いていない問題(データの順)
-  // excludeId は、いま解いた問題。すぐ同じ問題が続かないように後回しにする
-  function pick(mode, questions, excludeId = null) {
+  // 3. それでも足りなければ、次の復習が近い問題から
+  function plan(mode, questions, n) {
     const now = Date.now();
     const list = questions.map((q, index) => {
       const rec = get(mode, q.id);
-      return { index, id: q.id, st: status(rec, now), due: rec && status(rec, now) !== "new" ? dueAt(rec) : 0 };
+      const st = status(rec, now);
+      return { index, st, due: st === "new" ? 0 : dueAt(rec) };
     });
-
-    const due = list.filter((x) => x.st === "due").sort((a, b) => a.due - b.due);
-    const fresh = list.filter((x) => x.st === "new");
-    const candidates = [...due, ...fresh];
-
-    const next = candidates.find((x) => x.id !== excludeId) || candidates[0];
-    return next ? next.index : -1;
+    const byDue = (a, b) => a.due - b.due;
+    const ordered = [
+      ...list.filter((x) => x.st === "due").sort(byDue),
+      ...list.filter((x) => x.st === "new"),
+      ...list.filter((x) => x.st === "later").sort(byDue),
+    ];
+    return ordered.slice(0, n).map((x) => x.index);
   }
 
   // 今日の残り(復習・新規)と、いちばん近い次の復習
@@ -159,7 +160,7 @@
   }
 
   window.App.records = {
-    get, add, summary, pick, queue,
+    get, add, summary, plan, queue,
     questionText, summaryText, queueText, laterText, nextText,
   };
 })();

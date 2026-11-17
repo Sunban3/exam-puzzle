@@ -1,111 +1,50 @@
-// 4択クイズモード
+// 4択クイズモード(問題を表示して、答え合わせをする役)
 (() => {
   "use strict";
 
   const { NUMBERS, make, sourceText, renderExtras, matchItems, records, filter } = window.App;
   const MODE = "choice";
+  const session = () => window.App.sessions[MODE]; // 流れの管理役(app.js で作られる)
+
   const all = window.QUESTIONS || [];
   let questions = all.filter(filter.matches); // ジャンルで絞り込んだ問題
 
   const el = {
-    progress: document.getElementById("c-progress"),
     tag: document.getElementById("c-tag"),
+    record: document.getElementById("c-record"),
     stem: document.getElementById("c-stem"),
     extras: document.getElementById("c-extras"),
     choices: document.getElementById("c-choices"),
     result: document.getElementById("c-result"),
     next: document.getElementById("c-next"),
     source: document.getElementById("c-source"),
-    stats: document.getElementById("c-stats"),
-    record: document.getElementById("c-record"),
-    play: document.getElementById("c-play"),
-    done: document.getElementById("c-done"),
-    doneTitle: document.getElementById("c-done-title"),
-    doneText: document.getElementById("c-done-text"),
-    practice: document.getElementById("c-practice"),
   };
 
   const state = {
     index: 0,
     picked: null,   // 選んだ選択肢の番号(まだなら null)
     entering: false,
-    practice: false,   // true なら「全問を順番に解く」、false なら復習サイクルで出す
   };
 
-  // ----- 問題を読み込む -----
-  function load(i) {
+  // ----- 問題を表示する -----
+  function play(i) {
     const q = questions[i];
     Object.assign(state, { index: i, picked: null, entering: true });
 
-    el.play.hidden = false;
-    el.done.hidden = true;
-    el.progress.textContent = state.practice ? `全問モード ${i + 1} / ${questions.length}` : "復習モード";
     el.tag.textContent = q.tag;
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
     el.source.textContent = sourceText(q);
-    showRecord(q);
     el.result.hidden = true;
     el.result.replaceChildren();
     el.next.hidden = true;
+    showRecord(q);
 
     render();
   }
 
-  // ----- 学習記録の表示 -----
   function showRecord(q) {
     el.record.textContent = records.questionText(records.get(MODE, q.id));
-    el.stats.textContent = statsText();
-  }
-
-  function statsText() {
-    const ids = questions.map((x) => x.id);
-    return `${records.queueText(records.queue(MODE, questions))}　${records.summaryText(records.summary(MODE, ids))}`;
-  }
-
-  // ----- 次の問題へ -----
-  function goNext() {
-    if (state.practice) {
-      load((state.index + 1) % questions.length);
-      return;
-    }
-    const i = records.pick(MODE, questions, questions[state.index]?.id);
-    if (i < 0) showDone();
-    else load(i);
-  }
-
-  // 今日の分が終わったときの画面
-  function showDone() {
-    el.play.hidden = true;
-    el.done.hidden = false;
-    el.doneTitle.textContent = "今日の分はおわり！";
-    el.practice.hidden = false;
-    el.progress.textContent = "復習モード";
-    el.stats.textContent = statsText();
-    const qu = records.queue(MODE, questions);
-    el.doneText.textContent = `次の復習は${records.laterText(qu.soonest)}。それまでは、ほかの勉強をしたり休んだりしよう。`;
-  }
-
-  // 絞り込んだ結果、問題が1つもないとき
-  function showEmpty() {
-    el.play.hidden = true;
-    el.done.hidden = false;
-    el.doneTitle.textContent = "このジャンルの問題はありません";
-    el.doneText.textContent = "ジャンルの選び方を変えてみてね。";
-    el.practice.hidden = true;
-    el.progress.textContent = "";
-    el.stats.textContent = "";
-  }
-
-  function start() {
-    state.practice = false;
-    if (!questions.length) {
-      showEmpty();
-      return;
-    }
-    const i = records.pick(MODE, questions);
-    if (i < 0) showDone();
-    else load(i);
   }
 
   // ----- 画面を作る(状態 → 見た目) -----
@@ -145,13 +84,16 @@
     render();
 
     const ok = i === q.answer;
-    const rec = records.add(MODE, q.id, ok);
+    const rec = session().answered(q, ok);
     showRecord(q);
+
     const box = el.result;
     box.replaceChildren();
     box.classList.toggle("perfect", ok);
-    box.append(make("p", "score", ok ? "正解！" : `不正解… 正解は ${NUMBERS[q.answer]}`));
-    box.append(make("p", "next-review", records.nextText(rec)));
+    box.append(
+      make("p", "score", ok ? "正解！" : `不正解… 正解は ${NUMBERS[q.answer]}`),
+      make("p", "next-review", records.nextText(rec))
+    );
 
     // あてはめデータがある問題は、ほかの選択肢が何の説明なのかも見せる
     if (q.match) {
@@ -167,23 +109,16 @@
 
     box.hidden = false;
     el.next.hidden = false;
-    el.next.textContent = state.practice && state.index + 1 >= questions.length ? "最初から" : "次の問題";
+    el.next.textContent = session().isLast() ? "結果を見る" : "次の問題";
   }
 
-  el.next.addEventListener("click", goNext);
-  el.practice.addEventListener("click", () => {
-    state.practice = true;
-    load(0);
-  });
+  el.next.addEventListener("click", () => session().next());
 
+  // ----- 外から使う窓口 -----
   window.App.choice = {
-    count: () => questions.length,
-    // ジャンルが変わったら、問題を選び直して最初から
-    refresh() {
-      questions = all.filter(filter.matches);
-      start();
-    },
-    start,
+    questions: () => questions,
+    play,
+    refresh() { questions = all.filter(filter.matches); },
     shown() {},
   };
 })();

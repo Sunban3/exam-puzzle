@@ -28,13 +28,20 @@
         <p class="progress" id="m-progress"></p>
       </div>
 
-      <section class="done" id="m-done" hidden>
-        <p class="done-title" id="m-done-title">今日の分はおわり！</p>
-        <p class="done-text" id="m-done-text"></p>
-        <button type="button" id="m-practice">全部の問題を順番に解く</button>
+      <!-- 設定画面 -->
+      <section class="setup" id="m-setup">
+        <p class="setup-title">今日は何問やる？</p>
+        <div class="counter">
+          <button type="button" id="m-minus" aria-label="5問へらす">−5</button>
+          <output id="m-count" aria-live="polite"></output>
+          <button type="button" id="m-plus" aria-label="5問ふやす">＋5</button>
+        </div>
+        <p class="setup-info" id="m-setup-info"></p>
+        <button type="button" class="primary" id="m-start">はじめる</button>
       </section>
 
-      <div class="play" id="m-play">
+      <!-- 問題を解く画面 -->
+      <div class="play" id="m-play" hidden>
         <section class="question">
           <div class="question-head">
             <p class="tag" id="m-tag"></p>
@@ -64,6 +71,15 @@
         </footer>
         <p class="source" id="m-source"></p>
       </div>
+
+      <!-- 結果画面 -->
+      <section class="summary" id="m-summary" hidden>
+        <div id="m-summary-body"></div>
+        <div class="summary-actions">
+          <button type="button" class="primary" id="m-again">同じ問題数でもう一度</button>
+          <button type="button" id="m-back">問題数を選び直す</button>
+        </div>
+      </section>
     </section>
 
     <!-- ===== 4択クイズ ===== -->
@@ -73,13 +89,20 @@
         <p class="progress" id="c-progress"></p>
       </div>
 
-      <section class="done" id="c-done" hidden>
-        <p class="done-title" id="c-done-title">今日の分はおわり！</p>
-        <p class="done-text" id="c-done-text"></p>
-        <button type="button" id="c-practice">全部の問題を順番に解く</button>
+      <!-- 設定画面 -->
+      <section class="setup" id="c-setup">
+        <p class="setup-title">今日は何問やる？</p>
+        <div class="counter">
+          <button type="button" id="c-minus" aria-label="5問へらす">−5</button>
+          <output id="c-count" aria-live="polite"></output>
+          <button type="button" id="c-plus" aria-label="5問ふやす">＋5</button>
+        </div>
+        <p class="setup-info" id="c-setup-info"></p>
+        <button type="button" class="primary" id="c-start">はじめる</button>
       </section>
 
-      <div class="play" id="c-play">
+      <!-- 問題を解く画面 -->
+      <div class="play" id="c-play" hidden>
         <section class="question">
           <div class="question-head">
             <p class="tag" id="c-tag"></p>
@@ -97,6 +120,15 @@
         </footer>
         <p class="source" id="c-source"></p>
       </div>
+
+      <!-- 結果画面 -->
+      <section class="summary" id="c-summary" hidden>
+        <div id="c-summary-body"></div>
+        <div class="summary-actions">
+          <button type="button" class="primary" id="c-again">同じ問題数でもう一度</button>
+          <button type="button" id="c-back">問題数を選び直す</button>
+        </div>
+      </section>
     </section>
   </main>
 
@@ -109,6 +141,7 @@
   <script src="js/common.js"></script>
   <script src="js/records.js"></script>
   <script src="js/filter.js"></script>
+  <script src="js/session.js"></script>
   <script src="js/match.js"></script>
   <script src="js/choice.js"></script>
   <script src="js/app.js"></script>
