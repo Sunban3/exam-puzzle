@@ -61,6 +61,19 @@
     return rec;
   }
 
+  // 全モードの記録を [{ mode, id, rec }] の形で返す(自己分析タブで使う)
+  function entries() {
+    const out = [];
+    Object.entries(data).forEach(([mode, recs]) => {
+      if (!recs || typeof recs !== "object") return;
+      Object.keys(recs).forEach((id) => {
+        const rec = get(mode, id);
+        if (rec && Array.isArray(rec.history)) out.push({ mode, id, rec });
+      });
+    });
+    return out;
+  }
+
   // モード全体のまとめ(解いた問題数・正解率)
   function summary(mode, ids) {
     let solved = 0;
@@ -212,7 +225,7 @@
   }
 
   window.App.records = {
-    get, add, setUnsure, summary, plan, queue, newQuota,
+    get, add, setUnsure, summary, plan, queue, newQuota, entries, lastUnsure,
     questionText, summaryText, queueText, laterText, nextText,
   };
 })();

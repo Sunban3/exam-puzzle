@@ -4,7 +4,7 @@
 (() => {
   "use strict";
 
-  const { make, storage, records } = window.App;
+  const { make, storage, records, notes } = window.App;
   const STEP = 5;
   const DEFAULT_COUNT = 15;
   const CALC_EVERY = 5; // 計算問題を何問ごとに入れるか
@@ -159,14 +159,19 @@
       return records.add(mode, q.id, ok);
     }
 
-    // 答えたあとに出す「次の復習」の欄
+    // 答えたあとに出す「次の復習」と「振り返りメモ」の欄
     // 正解したときだけ「自信あり／たまたま」を選べる。何も押さなければ「自信あり」
+    // 振り返りメモは、間違えたときは最初から開いておく
     function reviewBox(q, rec) {
       const box = make("div", "review-box");
       const text = make("p", "next-review", records.nextText(rec));
       box.append(text);
       const result = state.results[state.results.length - 1];
-      if (!result || !result.ok) return box;
+      const note = notes.editor(q, { open: !result?.ok });
+      if (!result || !result.ok) {
+        box.append(note);
+        return box;
+      }
 
       const row = make("div", "sure-row");
       row.append(make("span", "sure-label", "この正解、自信ある？"));
@@ -180,6 +185,7 @@
           const updated = records.setUnsure(mode, q.id, unsure);
           result.unsure = unsure;                       // 結果画面の一覧用
           text.textContent = records.nextText(updated); // 次の復習の日をその場で書き換える
+          if (unsure) note.open = true;                 // たまたまなら、理由を書きやすいように開く
           paint();
         });
         return { btn, unsure };
@@ -190,7 +196,7 @@
       }
       paint();
       row.append(...buttons.map((b) => b.btn));
-      box.append(row);
+      box.append(row, note);
       return box;
     }
 

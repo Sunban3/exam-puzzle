@@ -823,3 +823,119 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* 計算問題のメモ欄(問題と選択肢のあいだ) */
 .calc-memo { margin: -4px 0 16px; }
+
+/* ===== 振り返りメモ(答えたあと) ===== */
+.note-box {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+  background: var(--bg);
+}
+.note-box[open] { padding-bottom: 12px; }
+.note-box summary { padding: 8px 0; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+.note-ask { margin: 0 0 6px; font-size: 0.8rem; color: var(--muted); }
+.note-reasons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.note-reasons .chip { padding: 4px 12px; font-size: 0.8rem; }
+.note-text {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  resize: vertical;
+}
+.note-status { margin: 4px 0 0; min-height: 1.2em; font-size: 0.75rem; color: var(--muted); }
+
+/* ===== 前回の自分のメモ(問題の上) ===== */
+.past-note {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-left: 4px solid var(--c2);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--c2) 10%, transparent);
+  font-size: 0.85rem;
+}
+.past-title { margin: 0 0 4px; font-weight: 700; color: var(--c2); }
+.past-reasons { display: flex; flex-wrap: wrap; gap: 4px; }
+.past-reason {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+}
+.past-text { margin-top: 6px; }
+.past-text summary { cursor: pointer; color: var(--muted); font-size: 0.8rem; }
+.past-text p { margin: 4px 0 0; white-space: pre-wrap; }
+
+/* ===== 自己分析タブ ===== */
+#analysis-body { display: grid; gap: 14px; }
+.an-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  animation: rise 0.35s ease-out;
+}
+.an-title { margin: 0 0 12px; font-size: 1rem; color: var(--text); }
+.an-empty, .an-note { margin: 8px 0 0; color: var(--muted); font-size: 0.85rem; }
+.an-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.an-stat { padding: 10px 12px; border-radius: 10px; background: var(--bg); }
+.an-stat-label { margin: 0; font-size: 0.8rem; color: var(--muted); }
+.an-stat-value { margin: 2px 0 0; }
+.an-num { font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.an-unit { margin-left: 4px; font-size: 0.8rem; color: var(--muted); }
+.an-verdict { margin: 0 0 6px; font-size: 0.9rem; }
+.an-verdict strong { margin-right: 4px; }
+.an-verdict.weak strong { color: var(--ng); }
+.an-verdict.strong strong { color: var(--ok); }
+.an-verdict + .genre-list { margin-top: 12px; }
+.an-genre, .an-reason { grid-template-columns: minmax(9em, 14em) 1fr 3.5em; }
+.genre-row.few .genre-bar::after { opacity: 0.4; }
+.an-reason .genre-bar::after { background: var(--c2); }
+.an-badge {
+  display: inline-block;
+  white-space: nowrap; /* 札の途中で折り返さない */
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  vertical-align: middle;
+}
+.an-badge.weak { background: var(--ng-soft); color: var(--ng); }
+.an-badge.strong { background: var(--ok-soft); color: var(--ok); }
+.an-badge.few { background: var(--bg); color: var(--muted); }
+.an-advice {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  font-size: 0.9rem;
+}
+.an-advice p { margin: 0; }
+.an-advice-title { font-weight: 700; color: var(--accent); margin-bottom: 4px !important; }
+.an-filters { margin-bottom: 10px; }
+.an-list { display: grid; gap: 8px; }
+.an-item { padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; }
+.an-item-head { margin: 0 0 4px; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.an-item-rate { font-size: 0.75rem; color: var(--muted); }
+.an-item-text { margin: 0 0 6px; font-size: 0.9rem; }
+.an-memo {
+  margin: 6px 0 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--bg);
+  white-space: pre-wrap;
+  font-size: 0.85rem;
+}
+
+/* タブが4つになったので、狭い画面では横にスクロールできるようにする */
+@media (max-width: 600px) {
+  .app-header { flex-wrap: wrap; gap: 8px; }
+  .tabs { max-width: 100%; overflow-x: auto; margin-left: 0; }
+  .tabs button { padding: 6px 10px; white-space: nowrap; }
+}

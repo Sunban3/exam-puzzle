@@ -4,6 +4,7 @@
 
   const { storage, filter, createSession } = window.App;
   const VIEW_KEY = "exam-puzzle:view";
+  const ANALYSIS = "analysis";
 
   // 各モードに「流れの管理役(セッション)」をつける
   const players = { match: window.App.match, choice: window.App.choice, kamokuB: window.App.kamokuB };
@@ -32,8 +33,13 @@
     Object.keys(players).forEach((name) => {
       document.getElementById(`view-${name}`).hidden = name !== view;
     });
+    // 自己分析は、問題を解くモードではない(ジャンルの絞り込みも使わない)
+    const isAnalysis = view === ANALYSIS;
+    document.getElementById("view-analysis").hidden = !isAnalysis;
+    document.getElementById("filter").hidden = isAnalysis;
     storage.set(VIEW_KEY, view);
-    sessions[view].shown();
+    if (isAnalysis) window.App.analysis.render(); // 開くたびに最新の記録で描き直す
+    else sessions[view].shown();
   }
 
   // イベント委任: タブの親に1つだけイベントをつける
@@ -53,5 +59,5 @@
 
   // 保存された値をそのまま信じず、知っているモードのときだけ使う
   const saved = storage.get(VIEW_KEY);
-  show(saved in players ? saved : "match");
+  show(saved in players || saved === ANALYSIS ? saved : "match");
 })();

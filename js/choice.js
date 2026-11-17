@@ -15,6 +15,7 @@
     memoBox: document.getElementById("c-memo-box"),
     memo: document.getElementById("c-memo"),
     record: document.getElementById("c-record"),
+    pastNote: document.getElementById("c-past-note"),
     stem: document.getElementById("c-stem"),
     extras: document.getElementById("c-extras"),
     choices: document.getElementById("c-choices"),
@@ -51,6 +52,7 @@
 
   function showRecord(q) {
     el.record.textContent = records.questionText(records.get(MODE, q.id));
+    window.App.notes.showPast(el.pastNote, q); // 前回の自分のメモ(あれば)
   }
 
   // ----- 画面を作る(状態 → 見た目) -----

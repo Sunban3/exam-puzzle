@@ -14,6 +14,7 @@
   const el = {
     tag: document.getElementById("b-tag"),
     record: document.getElementById("b-record"),
+    pastNote: document.getElementById("b-past-note"),
     title: document.getElementById("b-title"),
     stem: document.getElementById("b-stem"),
     extras: document.getElementById("b-extras"),
@@ -120,6 +121,7 @@
     el.result.replaceChildren();
     el.next.hidden = true;
     el.record.textContent = records.questionText(records.get(MODE, q.id));
+    window.App.notes.showPast(el.pastNote, q); // 前回の自分のメモ(あれば)
 
     render();
     startTimer();

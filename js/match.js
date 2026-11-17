@@ -22,6 +22,7 @@
     hint: document.getElementById("m-hint"),
     choices: document.getElementById("m-choices"),
     record: document.getElementById("m-record"),
+    pastNote: document.getElementById("m-past-note"),
     stem: document.getElementById("m-stem"),
     extras: document.getElementById("m-extras"),
     board: document.getElementById("m-board"),
@@ -93,6 +94,7 @@
 
   function showRecord(q) {
     el.record.textContent = records.questionText(records.get(MODE, q.id));
+    window.App.notes.showPast(el.pastNote, q); // 前回の自分のメモ(あれば)
   }
 
   // ----- 画面を作る(状態 → 見た目) -----

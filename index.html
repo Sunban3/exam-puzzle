@@ -14,6 +14,7 @@
         <button type="button" role="tab" data-view="match">用語あてはめ <span class="count" id="count-match"></span></button>
         <button type="button" role="tab" data-view="choice">4択クイズ <span class="count" id="count-choice"></span></button>
         <button type="button" role="tab" data-view="kamokuB">科目B <span class="count" id="count-kamokuB"></span></button>
+        <button type="button" role="tab" data-view="analysis">自己分析</button>
       </nav>
     </header>
 
@@ -53,6 +54,7 @@
             <p class="tag" id="m-tag"><span id="m-tag-text"></span> <span class="calc-badge" id="m-calc-badge" hidden>計算</span></p>
             <p class="record" id="m-record"></p>
           </div>
+          <div class="past-note" id="m-past-note" hidden></div>
           <p class="stem" id="m-stem"></p>
           <div class="extras" id="m-extras"></div>
           <p class="hint" id="m-hint">選択肢をタップしてから、正しい説明をタップしよう</p>
@@ -128,6 +130,7 @@
             <p class="tag" id="c-tag"><span id="c-tag-text"></span> <span class="calc-badge" id="c-calc-badge" hidden>計算</span></p>
             <p class="record" id="c-record"></p>
           </div>
+          <div class="past-note" id="c-past-note" hidden></div>
           <p class="stem" id="c-stem"></p>
           <div class="extras" id="c-extras"></div>
         </section>
@@ -195,6 +198,7 @@
                 <p class="tag" id="b-tag"></p>
                 <p class="record" id="b-record"></p>
               </div>
+              <div class="past-note" id="b-past-note" hidden></div>
               <p class="b-title" id="b-title"></p>
               <p class="stem" id="b-stem"></p>
               <div class="extras" id="b-extras"></div>
@@ -238,6 +242,11 @@
         </div>
       </section>
     </section>
+
+    <!-- ===== 自己分析 ===== -->
+    <section class="view" id="view-analysis" role="tabpanel" hidden>
+      <div id="analysis-body"></div>
+    </section>
   </main>
 
   <!-- 問題データ(年度ごとのファイル) -->
@@ -251,12 +260,14 @@
   <!-- プログラム -->
   <script src="js/common.js"></script>
   <script src="js/records.js"></script>
+  <script src="js/notes.js"></script>
   <script src="js/filter.js"></script>
   <script src="js/session.js"></script>
   <script src="js/match.js"></script>
   <script src="js/choice.js"></script>
   <script src="js/trace.js"></script>
   <script src="js/kamokuB.js"></script>
+  <script src="js/analysis.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
