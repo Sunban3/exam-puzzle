@@ -22,34 +22,43 @@
         <p class="stats" id="m-stats"></p>
         <p class="progress" id="m-progress"></p>
       </div>
-      <section class="question">
-        <div class="question-head">
-          <p class="tag" id="m-tag"></p>
-          <p class="record" id="m-record"></p>
-        </div>
-        <p class="stem" id="m-stem"></p>
-        <div class="extras" id="m-extras"></div>
-        <p class="hint">選択肢をタップしてから、正しい説明をタップしよう</p>
+
+      <section class="done" id="m-done" hidden>
+        <p class="done-title">今日の分はおわり！</p>
+        <p class="done-text" id="m-done-text"></p>
+        <button type="button" id="m-practice">全部の問題を順番に解く</button>
       </section>
 
-      <div class="board" id="m-board">
-        <svg class="lines" id="m-lines" aria-hidden="true"></svg>
-        <div class="column">
-          <h2>選択肢</h2>
-          <ul class="cards" id="m-terms"></ul>
-        </div>
-        <div class="column">
-          <h2>説明</h2>
-          <ul class="cards" id="m-meanings"></ul>
-        </div>
-      </div>
+      <div class="play" id="m-play">
+        <section class="question">
+          <div class="question-head">
+            <p class="tag" id="m-tag"></p>
+            <p class="record" id="m-record"></p>
+          </div>
+          <p class="stem" id="m-stem"></p>
+          <div class="extras" id="m-extras"></div>
+          <p class="hint">選択肢をタップしてから、正しい説明をタップしよう</p>
+        </section>
 
-      <section class="result" id="m-result" hidden></section>
-      <footer class="actions">
-        <button type="button" id="m-check" disabled>答え合わせ</button>
-        <button type="button" id="m-next" hidden>次の問題</button>
-      </footer>
-      <p class="source" id="m-source"></p>
+        <div class="board" id="m-board">
+          <svg class="lines" id="m-lines" aria-hidden="true"></svg>
+          <div class="column">
+            <h2>選択肢</h2>
+            <ul class="cards" id="m-terms"></ul>
+          </div>
+          <div class="column">
+            <h2>説明</h2>
+            <ul class="cards" id="m-meanings"></ul>
+          </div>
+        </div>
+
+        <section class="result" id="m-result" hidden></section>
+        <footer class="actions">
+          <button type="button" id="m-check" disabled>答え合わせ</button>
+          <button type="button" id="m-next" hidden>次の問題</button>
+        </footer>
+        <p class="source" id="m-source"></p>
+      </div>
     </section>
 
     <!-- ===== 4択クイズ ===== -->
@@ -58,22 +67,31 @@
         <p class="stats" id="c-stats"></p>
         <p class="progress" id="c-progress"></p>
       </div>
-      <section class="question">
-        <div class="question-head">
-          <p class="tag" id="c-tag"></p>
-          <p class="record" id="c-record"></p>
-        </div>
-        <p class="stem" id="c-stem"></p>
-        <div class="extras" id="c-extras"></div>
+
+      <section class="done" id="c-done" hidden>
+        <p class="done-title">今日の分はおわり！</p>
+        <p class="done-text" id="c-done-text"></p>
+        <button type="button" id="c-practice">全部の問題を順番に解く</button>
       </section>
 
-      <ol class="choices" id="c-choices"></ol>
+      <div class="play" id="c-play">
+        <section class="question">
+          <div class="question-head">
+            <p class="tag" id="c-tag"></p>
+            <p class="record" id="c-record"></p>
+          </div>
+          <p class="stem" id="c-stem"></p>
+          <div class="extras" id="c-extras"></div>
+        </section>
 
-      <section class="result" id="c-result" hidden></section>
-      <footer class="actions">
-        <button type="button" id="c-next" hidden>次の問題</button>
-      </footer>
-      <p class="source" id="c-source"></p>
+        <ol class="choices" id="c-choices"></ol>
+
+        <section class="result" id="c-result" hidden></section>
+        <footer class="actions">
+          <button type="button" id="c-next" hidden>次の問題</button>
+        </footer>
+        <p class="source" id="c-source"></p>
+      </div>
     </section>
   </main>
 

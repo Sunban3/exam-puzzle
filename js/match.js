@@ -26,6 +26,10 @@
     source: document.getElementById("m-source"),
     stats: document.getElementById("m-stats"),
     record: document.getElementById("m-record"),
+    play: document.getElementById("m-play"),
+    done: document.getElementById("m-done"),
+    doneText: document.getElementById("m-done-text"),
+    practice: document.getElementById("m-practice"),
   };
 
   const state = {
@@ -36,6 +40,7 @@
     justPaired: null,
     checked: false,
     entering: false,
+    practice: false,   // true なら「全問を順番に解く」、false なら復習サイクルで出す
   };
 
   const colorOf = (t) => `var(--c${(t % 4) + 1})`;
@@ -58,7 +63,9 @@
       entering: true,
     });
 
-    el.progress.textContent = `${i + 1} / ${questions.length}`;
+    el.play.hidden = false;
+    el.done.hidden = true;
+    el.progress.textContent = state.practice ? `全問モード ${i + 1} / ${questions.length}` : "復習モード";
     el.tag.textContent = q.tag;
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
@@ -75,7 +82,41 @@
   // ----- 学習記録の表示 -----
   function showRecord(q) {
     el.record.textContent = records.questionText(records.get(MODE, q.id));
-    el.stats.textContent = records.summaryText(records.summary(MODE, questions.map((x) => x.id)));
+    el.stats.textContent = statsText();
+  }
+
+  function statsText() {
+    const ids = questions.map((x) => x.id);
+    return `${records.queueText(records.queue(MODE, questions))}　${records.summaryText(records.summary(MODE, ids))}`;
+  }
+
+  // ----- 次の問題へ -----
+  function goNext() {
+    if (state.practice) {
+      load((state.index + 1) % questions.length);
+      return;
+    }
+    const i = records.pick(MODE, questions, questions[state.index]?.id);
+    if (i < 0) showDone();
+    else load(i);
+  }
+
+  // 今日の分が終わったときの画面
+  function showDone() {
+    el.play.hidden = true;
+    el.done.hidden = false;
+    el.progress.textContent = "復習モード";
+    el.stats.textContent = statsText();
+    const qu = records.queue(MODE, questions);
+    el.doneText.textContent = `次の復習は${records.laterText(qu.soonest)}。それまでは、ほかの勉強をしたり休んだりしよう。`;
+  }
+
+  function start() {
+    state.practice = false;
+    if (!questions.length) return;
+    const i = records.pick(MODE, questions);
+    if (i < 0) showDone();
+    else load(i);
   }
 
   // ----- 画面を作る(状態 → 見た目) -----
@@ -228,7 +269,7 @@
 
     const correctCount = q.items.filter((_, t) => state.pairs[t] === t).length;
     const allCorrect = correctCount === q.items.length;
-    records.add(MODE, q.id, allCorrect); // 4つ全部合っていたら「正解」として記録
+    const rec = records.add(MODE, q.id, allCorrect); // 4つ全部合っていたら「正解」として記録
     showRecord(q);
     const box = el.result;
     box.replaceChildren();
@@ -236,6 +277,7 @@
     box.append(
       make("p", "score", allCorrect ? `全問正解！ ${correctCount} / ${q.items.length}` : `${correctCount} / ${q.items.length} 正解`)
     );
+    box.append(make("p", "next-review", records.nextText(rec)));
 
     q.items.forEach((item, t) => {
       if (state.pairs[t] === t) return;
@@ -255,16 +297,20 @@
     box.hidden = false;
     el.check.hidden = true;
     el.next.hidden = false;
-    el.next.textContent = state.index + 1 < questions.length ? "次の問題" : "最初から";
+    el.next.textContent = state.practice && state.index + 1 >= questions.length ? "最初から" : "次の問題";
   }
 
   el.check.addEventListener("click", check);
-  el.next.addEventListener("click", () => load((state.index + 1) % questions.length));
+  el.next.addEventListener("click", goNext);
+  el.practice.addEventListener("click", () => {
+    state.practice = true;
+    load(0);
+  });
 
   // ----- 外から使う窓口 -----
   window.App.match = {
     count: questions.length,
-    start() { if (questions.length) load(0); },
+    start,
     // 非表示から表示に切り替わったら、カードの位置が変わるので線を引き直す
     shown() { drawLines(); },
   };

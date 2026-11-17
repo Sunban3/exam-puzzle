@@ -17,12 +17,17 @@
     source: document.getElementById("c-source"),
     stats: document.getElementById("c-stats"),
     record: document.getElementById("c-record"),
+    play: document.getElementById("c-play"),
+    done: document.getElementById("c-done"),
+    doneText: document.getElementById("c-done-text"),
+    practice: document.getElementById("c-practice"),
   };
 
   const state = {
     index: 0,
     picked: null,   // 選んだ選択肢の番号(まだなら null)
     entering: false,
+    practice: false,   // true なら「全問を順番に解く」、false なら復習サイクルで出す
   };
 
   // ----- 問題を読み込む -----
@@ -30,7 +35,9 @@
     const q = questions[i];
     Object.assign(state, { index: i, picked: null, entering: true });
 
-    el.progress.textContent = `${i + 1} / ${questions.length}`;
+    el.play.hidden = false;
+    el.done.hidden = true;
+    el.progress.textContent = state.practice ? `全問モード ${i + 1} / ${questions.length}` : "復習モード";
     el.tag.textContent = q.tag;
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
@@ -46,7 +53,41 @@
   // ----- 学習記録の表示 -----
   function showRecord(q) {
     el.record.textContent = records.questionText(records.get(MODE, q.id));
-    el.stats.textContent = records.summaryText(records.summary(MODE, questions.map((x) => x.id)));
+    el.stats.textContent = statsText();
+  }
+
+  function statsText() {
+    const ids = questions.map((x) => x.id);
+    return `${records.queueText(records.queue(MODE, questions))}　${records.summaryText(records.summary(MODE, ids))}`;
+  }
+
+  // ----- 次の問題へ -----
+  function goNext() {
+    if (state.practice) {
+      load((state.index + 1) % questions.length);
+      return;
+    }
+    const i = records.pick(MODE, questions, questions[state.index]?.id);
+    if (i < 0) showDone();
+    else load(i);
+  }
+
+  // 今日の分が終わったときの画面
+  function showDone() {
+    el.play.hidden = true;
+    el.done.hidden = false;
+    el.progress.textContent = "復習モード";
+    el.stats.textContent = statsText();
+    const qu = records.queue(MODE, questions);
+    el.doneText.textContent = `次の復習は${records.laterText(qu.soonest)}。それまでは、ほかの勉強をしたり休んだりしよう。`;
+  }
+
+  function start() {
+    state.practice = false;
+    if (!questions.length) return;
+    const i = records.pick(MODE, questions);
+    if (i < 0) showDone();
+    else load(i);
   }
 
   // ----- 画面を作る(状態 → 見た目) -----
@@ -86,12 +127,13 @@
     render();
 
     const ok = i === q.answer;
-    records.add(MODE, q.id, ok);
+    const rec = records.add(MODE, q.id, ok);
     showRecord(q);
     const box = el.result;
     box.replaceChildren();
     box.classList.toggle("perfect", ok);
     box.append(make("p", "score", ok ? "正解！" : `不正解… 正解は ${NUMBERS[q.answer]}`));
+    box.append(make("p", "next-review", records.nextText(rec)));
 
     // あてはめデータがある問題は、ほかの選択肢が何の説明なのかも見せる
     if (q.match) {
@@ -107,14 +149,18 @@
 
     box.hidden = false;
     el.next.hidden = false;
-    el.next.textContent = state.index + 1 < questions.length ? "次の問題" : "最初から";
+    el.next.textContent = state.practice && state.index + 1 >= questions.length ? "最初から" : "次の問題";
   }
 
-  el.next.addEventListener("click", () => load((state.index + 1) % questions.length));
+  el.next.addEventListener("click", goNext);
+  el.practice.addEventListener("click", () => {
+    state.practice = true;
+    load(0);
+  });
 
   window.App.choice = {
     count: questions.length,
-    start() { if (questions.length) load(0); },
+    start,
     shown() {},
   };
 })();
