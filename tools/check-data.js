@@ -8,6 +8,7 @@ global.window = {};
 for (const year of ["r05", "r06", "r07", "r08", "r01a", "h31s"]) {
   require(path.join(__dirname, "..", "data", `fe-${year}.js`));
 }
+require(path.join(__dirname, "..", "data", "fe-b.js"));
 const questions = window.QUESTIONS;
 
 // IPAの解答例(公開問題は問1〜問20、午前は問1〜問80)。ア=0, イ=1, ウ=2, エ=3
@@ -51,6 +52,32 @@ questions.forEach((q) => {
     if (meanings && meanings.length !== 4) errors.push(`${where}: meaningsが4つではない`);
   }
 });
+
+// ===== 科目B =====
+// 選択肢は最大10個(ア〜コ)
+const KANA_B = { ア: 0, イ: 1, ウ: 2, エ: 3, オ: 4, カ: 5, キ: 6, ク: 7, ケ: 8, コ: 9 };
+const OFFICIAL_B = {
+  R5B: "アクエエエア",
+  R6B: "イエエイオウ",
+  R7B: "カアイクオク",
+  R8B: "エカアエイケ",
+};
+const bQuestions = window.KAMOKU_B || [];
+bQuestions.forEach((q) => {
+  const where = q.id || "(idなし)";
+  if (ids.has(q.id)) errors.push(`${where}: idが重複`);
+  ids.add(q.id);
+
+  if (!OFFICIAL_B[q.year]) errors.push(`${where}: yearが不明 (${q.year})`);
+  if (!q.stem) errors.push(`${where}: stemがない`);
+  if (!q.title) errors.push(`${where}: titleがない`);
+  if (!Array.isArray(q.choices) || q.choices.length < 2 || q.choices.length > 10) {
+    errors.push(`${where}: choicesは2〜10個`);
+  }
+  const official = KANA_B[OFFICIAL_B[q.year]?.[q.no - 1]];
+  if (q.answer !== official) errors.push(`${where}: 正解が解答例と違う (データ:${q.answer} 解答例:${official})`);
+});
+console.log(`科目B ${bQuestions.length}問`);
 
 const matchCount = questions.filter((q) => q.match).length;
 const calcCount = questions.filter((q) => q.calc).length;

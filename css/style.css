@@ -631,6 +631,7 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 .timer.warn { border-color: var(--c2); color: var(--c2); animation: glow 1.2s ease-in-out infinite; --pair: var(--c2); }
 .timer.over { border-color: var(--ng); color: #fff; background: var(--ng); }
 .b-title { margin: 0 0 6px; font-size: 1.05rem; font-weight: 800; }
+#b-stem { font-weight: normal; line-height: 1.7; } /* 長文なので太字にしない */
 .memo-box {
   margin-top: 12px;
   background: var(--surface);
@@ -692,6 +693,8 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 .line-no {
   all: unset;
   cursor: pointer;
+  position: relative;
+  white-space: nowrap; /* 「▶」がついても行番号を折り返さない */
   text-align: right;
   padding-right: 10px;
   color: var(--muted);
@@ -701,7 +704,12 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 /* 「いまここ」の行 */
 .code-line.current { background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .code-line.current .line-no { color: var(--accent); font-weight: bold; }
-.code-line.current .line-no::before { content: "▶ "; }
+/* ▶は行番号の左の余白に重ねて置く(幅が変わらないので、行がずれない) */
+.code-line.current .line-no::before {
+  content: "▶";
+  position: absolute;
+  left: 2px;
+}
 .code-viewer .kw { color: var(--muted); font-weight: bold; }
 /* 変数はボタンだけど、文字と同じ見た目にしておく */
 .var {
@@ -751,3 +759,5 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
   color: inherit;
 }
 .trace-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.code-viewer .comment { color: var(--muted); }
+.code-viewer .str { color: var(--ok); }

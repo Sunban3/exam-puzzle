@@ -40,30 +40,54 @@
           no.addEventListener("click", () => markLine(n));
 
           const body = make("span", "line-body");
-          let last = 0;
-          for (const m of line.matchAll(IDENT)) {
-            const name = m[0];
-            const before = line.slice(last, m.index);
-            if (before) body.append(document.createTextNode(before));
-            const isCall = line[m.index + name.length] === "("; // 関数の呼び出しは対象外
-            if (KEYWORDS.has(name) || isCall) {
-              body.append(make("span", "kw", name));
-            } else {
-              const v = make("button", "var", name);
-              v.type = "button";
-              v.dataset.var = name;
-              v.addEventListener("click", () => toggleVar(name));
-              body.append(v);
-            }
-            last = m.index + name.length;
-          }
-          if (last < line.length) body.append(document.createTextNode(line.slice(last)));
+          splitLine(line).forEach((part) => {
+            if (part.plain) body.append(make("span", part.plain, part.text));
+            else appendCode(body, part.text);
+          });
 
           row.append(no, body);
           return row;
         })
       );
       paintVars();
+    }
+
+    // 1行を「プログラム部分」と「文字列・コメント部分」に分ける
+    // 文字列 "A" やコメント // ... の中の英字は変数ではないので、タップの対象から外す
+    const PLAIN = /"[^"]*"|“[^”]*”|\/\/.*$|\/\*.*?\*\//g;
+    function splitLine(line) {
+      const parts = [];
+      let last = 0;
+      for (const m of line.matchAll(PLAIN)) {
+        if (m.index > last) parts.push({ text: line.slice(last, m.index) });
+        const isComment = m[0].startsWith("/");
+        parts.push({ text: m[0], plain: isComment ? "comment" : "str" });
+        last = m.index + m[0].length;
+      }
+      if (last < line.length) parts.push({ text: line.slice(last) });
+      return parts;
+    }
+
+    // プログラム部分の英字の名前(識別子)をボタンにする
+    function appendCode(body, text) {
+      let last = 0;
+      for (const m of text.matchAll(IDENT)) {
+        const name = m[0];
+        const before = text.slice(last, m.index);
+        if (before) body.append(document.createTextNode(before));
+        const isCall = text[m.index + name.length] === "("; // 関数の呼び出しは対象外
+        if (KEYWORDS.has(name) || isCall) {
+          body.append(make("span", "kw", name));
+        } else {
+          const v = make("button", "var", name);
+          v.type = "button";
+          v.dataset.var = name;
+          v.addEventListener("click", () => toggleVar(name));
+          body.append(v);
+        }
+        last = m.index + name.length;
+      }
+      if (last < text.length) body.append(document.createTextNode(text.slice(last)));
     }
 
     function markLine(n) {
