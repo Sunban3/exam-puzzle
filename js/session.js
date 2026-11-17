@@ -15,6 +15,7 @@
   //   refresh()   … ジャンルが変わったときに問題を選び直す
   //   shown()     … 画面に表示されたとき
   //   calcIsExtra … true なら、計算問題は「5問に1回」のときだけ出す(オフなら出さない)
+  //   emptyText   … 問題が1つもないときに設定画面に出す文(なければ、ジャンルの案内)
   function createSession({ mode, prefix, player }) {
     const $ = (name) => document.getElementById(`${prefix}-${name}`);
     const el = {
@@ -42,7 +43,7 @@
       calcOn: storage.get(CALC_KEY) !== "off", // 計算問題を5問ごとに入れるか(最初はオン)
       queue: [],            // 出題する問題の番号の列
       pos: 0,               // いま何問目か(0から)
-      results: [],          // { q, ok } の列
+      results: [],          // { q, ok, seconds?, over? } の列(seconds はかかった秒数)
     };
 
     function loadTarget() {
@@ -94,7 +95,7 @@
       const total = available();
       if (total === 0) {
         el.count.textContent = "0問";
-        el.setupInfo.textContent = "このジャンルの問題はありません。ジャンルの選び方を変えてみてね。";
+        el.setupInfo.textContent = player.emptyText || "このジャンルの問題はありません。ジャンルの選び方を変えてみてね。";
         [el.minus, el.plus, el.start].forEach((b) => (b.disabled = true));
         return;
       }
@@ -144,8 +145,9 @@
     }
 
     // 各モードが「答えた」ときに呼ぶ。記録を返すので、モード側で次の復習を表示できる
-    function answered(q, ok) {
-      state.results.push({ q, ok });
+    // extra には、タイマーがあるモードなら { seconds, over } を入れる
+    function answered(q, ok, extra = {}) {
+      state.results.push({ q, ok, ...extra });
       el.stats.textContent = statsText();
       return records.add(mode, q.id, ok);
     }
@@ -195,6 +197,10 @@
       );
       nodes.push(head);
 
+      // かかった時間(タイマーがあるモードだけ)
+      const timed = state.results.filter((r) => typeof r.seconds === "number");
+      if (timed.length) nodes.push(timeSection(timed));
+
       // 苦手ジャンル(いちばん正解率が低いもの。同じ率なら全部)
       const lowest = tags.length ? tags[0].rate : 1;
       const weak = tags.filter((t) => t.rate === lowest);
@@ -240,6 +246,36 @@
       }
 
       el.summaryBody.replaceChildren(...nodes);
+    }
+
+    // 秒数を「4分12秒」の形にする
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return m ? `${m}分${s}秒` : `${s}秒`;
+    }
+
+    function timeSection(timed) {
+      const box = make("div", "time-list");
+      const avg = Math.round(timed.reduce((sum, r) => sum + r.seconds, 0) / timed.length);
+      const overCount = timed.filter((r) => r.over).length;
+      box.append(
+        make("p", "summary-section", "かかった時間"),
+        make("p", overCount ? "time-total over" : "time-total",
+          `1問平均 ${formatTime(avg)}　時間オーバー ${overCount}問`)
+      );
+      timed.forEach(({ q, ok, seconds, over }, i) => {
+        const row = make("p", "time-row");
+        if (over) row.classList.add("over");
+        row.append(
+          make("span", "time-no", `${i + 1}問目`),
+          make("span", ok ? "time-mark ok" : "time-mark ng", ok ? "○" : "×"),
+          make("span", "time-name", q.title || q.stem.split("\n")[0].slice(0, 30)),
+          make("span", "time-sec", formatTime(seconds) + (over ? "（オーバー）" : ""))
+        );
+        box.append(row);
+      });
+      return box;
     }
 
     el.calc.addEventListener("change", () => {

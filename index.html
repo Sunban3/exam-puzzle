@@ -13,6 +13,7 @@
       <nav class="tabs" id="tabs" role="tablist" aria-label="モード">
         <button type="button" role="tab" data-view="match">用語あてはめ <span class="count" id="count-match"></span></button>
         <button type="button" role="tab" data-view="choice">4択クイズ <span class="count" id="count-choice"></span></button>
+        <button type="button" role="tab" data-view="kamokuB">科目B <span class="count" id="count-kamokuB"></span></button>
       </nav>
     </header>
 
@@ -143,6 +144,69 @@
         </div>
       </section>
     </section>
+
+    <!-- ===== 科目B ===== -->
+    <section class="view" id="view-kamokuB" role="tabpanel" hidden>
+      <div class="view-head">
+        <p class="stats" id="b-stats"></p>
+        <p class="progress" id="b-progress"></p>
+      </div>
+
+      <!-- 設定画面 -->
+      <section class="setup" id="b-setup">
+        <p class="setup-title">今日は何問やる？</p>
+        <div class="counter">
+          <button type="button" id="b-minus" aria-label="5問へらす">−5</button>
+          <output id="b-count" aria-live="polite"></output>
+          <button type="button" id="b-plus" aria-label="5問ふやす">＋5</button>
+        </div>
+        <p class="setup-info" id="b-setup-info"></p>
+        <p class="setup-sub">1問あたりの目安時間</p>
+        <div class="chips timer-choices" id="b-timer-choices"></div>
+        <label class="switch" id="b-calc-row" hidden>
+          <input type="checkbox" id="b-calc">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span>5問に1回、計算問題を入れる</span>
+        </label>
+        <button type="button" class="primary" id="b-start">はじめる</button>
+      </section>
+
+      <!-- 問題を解く画面 -->
+      <div class="play" id="b-play" hidden>
+        <div class="timer" id="b-timer" role="timer" aria-live="off"></div>
+        <section class="question">
+          <div class="question-head">
+            <p class="tag" id="b-tag"></p>
+            <p class="record" id="b-record"></p>
+          </div>
+          <p class="b-title" id="b-title"></p>
+          <p class="stem" id="b-stem"></p>
+          <div class="extras" id="b-extras"></div>
+        </section>
+
+        <ol class="choices" id="b-choices"></ol>
+
+        <details class="memo-box">
+          <summary>メモ欄（変数の値を追いかけるのに使ってね）</summary>
+          <textarea id="b-memo" rows="6" placeholder="例）i=1: x=3, y=5 → i=2: ..."></textarea>
+        </details>
+
+        <section class="result" id="b-result" hidden></section>
+        <footer class="actions">
+          <button type="button" id="b-next" hidden>次の問題</button>
+        </footer>
+        <p class="source" id="b-source"></p>
+      </div>
+
+      <!-- 結果画面 -->
+      <section class="summary" id="b-summary" hidden>
+        <div id="b-summary-body"></div>
+        <div class="summary-actions">
+          <button type="button" class="primary" id="b-again">同じ問題数でもう一度</button>
+          <button type="button" id="b-back">問題数を選び直す</button>
+        </div>
+      </section>
+    </section>
   </main>
 
   <!-- 問題データ(年度ごとのファイル) -->
@@ -152,6 +216,7 @@
   <script src="data/fe-r08.js"></script>
   <script src="data/fe-r01a.js"></script>
   <script src="data/fe-h31s.js"></script>
+  <script src="data/fe-b.js"></script>
   <!-- プログラム -->
   <script src="js/common.js"></script>
   <script src="js/records.js"></script>
@@ -159,6 +224,7 @@
   <script src="js/session.js"></script>
   <script src="js/match.js"></script>
   <script src="js/choice.js"></script>
+  <script src="js/kamokuB.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

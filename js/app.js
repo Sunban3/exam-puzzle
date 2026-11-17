@@ -6,8 +6,8 @@
   const VIEW_KEY = "exam-puzzle:view";
 
   // 各モードに「流れの管理役(セッション)」をつける
-  const players = { match: window.App.match, choice: window.App.choice };
-  const prefixes = { match: "m", choice: "c" };
+  const players = { match: window.App.match, choice: window.App.choice, kamokuB: window.App.kamokuB };
+  const prefixes = { match: "m", choice: "c", kamokuB: "b" };
   window.App.sessions = {};
   Object.keys(players).forEach((name) => {
     window.App.sessions[name] = createSession({ mode: name, prefix: prefixes[name], player: players[name] });

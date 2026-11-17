@@ -609,3 +609,64 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
   color: #fff;
   font-size: 0.75rem;
 }
+
+/* ===== 科目B ===== */
+.setup-sub { margin: 0 0 8px; font-weight: 700; font-size: 0.9rem; }
+.timer-choices { justify-content: center; margin-bottom: 20px; }
+.timer {
+  position: sticky;
+  top: 8px;
+  z-index: 3;
+  width: fit-content;
+  margin: 12px 0 0 auto;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.timer.warn { border-color: var(--c2); color: var(--c2); animation: glow 1.2s ease-in-out infinite; --pair: var(--c2); }
+.timer.over { border-color: var(--ng); color: #fff; background: var(--ng); }
+.b-title { margin: 0 0 6px; font-size: 1.05rem; font-weight: 800; }
+.memo-box {
+  margin-top: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.memo-box summary { padding: 10px 14px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+.memo-box textarea {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 0 14px 14px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 0.85rem;
+  resize: vertical;
+}
+.time-used { margin: 0 0 6px; font-weight: 600; }
+.time-used.over { color: var(--ng); }
+.point { white-space: pre-wrap; }
+.time-list { display: grid; gap: 4px; }
+.time-total { margin: 0 0 6px; font-weight: 700; }
+.time-total.over { color: var(--ng); }
+.time-row {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 4em 1.5em 1fr auto;
+  gap: 8px;
+  font-size: 0.85rem;
+  align-items: baseline;
+}
+.time-row.over .time-sec { color: var(--ng); font-weight: 700; }
+.time-mark.ok { color: var(--ok); font-weight: 700; }
+.time-mark.ng { color: var(--ng); font-weight: 700; }
+.time-sec { font-variant-numeric: tabular-nums; }
