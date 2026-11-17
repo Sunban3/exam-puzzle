@@ -9,39 +9,71 @@
 <body>
   <main class="app">
     <header class="app-header">
-      <h1>用語あてはめクイズ</h1>
-      <p class="progress" id="progress"></p>
+      <h1>資格勉強パズル</h1>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="モード">
+        <button type="button" role="tab" data-view="match">用語あてはめ <span class="count" id="count-match"></span></button>
+        <button type="button" role="tab" data-view="choice">4択クイズ <span class="count" id="count-choice"></span></button>
+      </nav>
     </header>
 
-    <section class="question" id="question">
-      <p class="tag" id="tag"></p>
-      <p class="stem" id="stem"></p>
-      <p class="hint">選択肢をタップしてから、正しい説明をタップしよう</p>
+    <!-- ===== 用語あてはめ ===== -->
+    <section class="view" id="view-match" role="tabpanel">
+      <p class="progress" id="m-progress"></p>
+      <section class="question">
+        <p class="tag" id="m-tag"></p>
+        <p class="stem" id="m-stem"></p>
+        <div class="extras" id="m-extras"></div>
+        <p class="hint">選択肢をタップしてから、正しい説明をタップしよう</p>
+      </section>
+
+      <div class="board" id="m-board">
+        <svg class="lines" id="m-lines" aria-hidden="true"></svg>
+        <div class="column">
+          <h2>選択肢</h2>
+          <ul class="cards" id="m-terms"></ul>
+        </div>
+        <div class="column">
+          <h2>説明</h2>
+          <ul class="cards" id="m-meanings"></ul>
+        </div>
+      </div>
+
+      <section class="result" id="m-result" hidden></section>
+      <footer class="actions">
+        <button type="button" id="m-check" disabled>答え合わせ</button>
+        <button type="button" id="m-next" hidden>次の問題</button>
+      </footer>
+      <p class="source" id="m-source"></p>
     </section>
 
-    <div class="board" id="board">
-      <svg class="lines" id="lines" aria-hidden="true"></svg>
-      <div class="column">
-        <h2>選択肢</h2>
-        <ul class="cards" id="terms"></ul>
-      </div>
-      <div class="column">
-        <h2>説明</h2>
-        <ul class="cards" id="meanings"></ul>
-      </div>
-    </div>
+    <!-- ===== 4択クイズ ===== -->
+    <section class="view" id="view-choice" role="tabpanel" hidden>
+      <p class="progress" id="c-progress"></p>
+      <section class="question">
+        <p class="tag" id="c-tag"></p>
+        <p class="stem" id="c-stem"></p>
+        <div class="extras" id="c-extras"></div>
+      </section>
 
-    <section class="result" id="result" hidden></section>
+      <ol class="choices" id="c-choices"></ol>
 
-    <footer class="actions">
-      <button type="button" id="check" disabled>答え合わせ</button>
-      <button type="button" id="next" hidden>次の問題</button>
-    </footer>
-
-    <p class="source" id="source"></p>
+      <section class="result" id="c-result" hidden></section>
+      <footer class="actions">
+        <button type="button" id="c-next" hidden>次の問題</button>
+      </footer>
+      <p class="source" id="c-source"></p>
+    </section>
   </main>
 
-  <script src="data/questions.js"></script>
+  <!-- 問題データ(年度ごとのファイル) -->
+  <script src="data/fe-r05.js"></script>
+  <script src="data/fe-r06.js"></script>
+  <script src="data/fe-r07.js"></script>
+  <script src="data/fe-r08.js"></script>
+  <!-- プログラム -->
+  <script src="js/common.js"></script>
+  <script src="js/match.js"></script>
+  <script src="js/choice.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
