@@ -16,6 +16,11 @@
       </nav>
     </header>
 
+    <details class="filter" id="filter">
+      <summary id="filter-summary">ジャンル：すべて</summary>
+      <div class="filter-body" id="filter-body"></div>
+    </details>
+
     <!-- ===== 用語あてはめ ===== -->
     <section class="view" id="view-match" role="tabpanel">
       <div class="view-head">
@@ -24,7 +29,7 @@
       </div>
 
       <section class="done" id="m-done" hidden>
-        <p class="done-title">今日の分はおわり！</p>
+        <p class="done-title" id="m-done-title">今日の分はおわり！</p>
         <p class="done-text" id="m-done-text"></p>
         <button type="button" id="m-practice">全部の問題を順番に解く</button>
       </section>
@@ -69,7 +74,7 @@
       </div>
 
       <section class="done" id="c-done" hidden>
-        <p class="done-title">今日の分はおわり！</p>
+        <p class="done-title" id="c-done-title">今日の分はおわり！</p>
         <p class="done-text" id="c-done-text"></p>
         <button type="button" id="c-practice">全部の問題を順番に解く</button>
       </section>
@@ -103,6 +108,7 @@
   <!-- プログラム -->
   <script src="js/common.js"></script>
   <script src="js/records.js"></script>
+  <script src="js/filter.js"></script>
   <script src="js/match.js"></script>
   <script src="js/choice.js"></script>
   <script src="js/app.js"></script>

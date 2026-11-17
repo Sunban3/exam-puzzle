@@ -2,9 +2,10 @@
 (() => {
   "use strict";
 
-  const { NUMBERS, make, sourceText, renderExtras, matchItems, records } = window.App;
+  const { NUMBERS, make, sourceText, renderExtras, matchItems, records, filter } = window.App;
   const MODE = "choice";
-  const questions = window.QUESTIONS || [];
+  const all = window.QUESTIONS || [];
+  let questions = all.filter(filter.matches); // ジャンルで絞り込んだ問題
 
   const el = {
     progress: document.getElementById("c-progress"),
@@ -19,6 +20,7 @@
     record: document.getElementById("c-record"),
     play: document.getElementById("c-play"),
     done: document.getElementById("c-done"),
+    doneTitle: document.getElementById("c-done-title"),
     doneText: document.getElementById("c-done-text"),
     practice: document.getElementById("c-practice"),
   };
@@ -76,15 +78,31 @@
   function showDone() {
     el.play.hidden = true;
     el.done.hidden = false;
+    el.doneTitle.textContent = "今日の分はおわり！";
+    el.practice.hidden = false;
     el.progress.textContent = "復習モード";
     el.stats.textContent = statsText();
     const qu = records.queue(MODE, questions);
     el.doneText.textContent = `次の復習は${records.laterText(qu.soonest)}。それまでは、ほかの勉強をしたり休んだりしよう。`;
   }
 
+  // 絞り込んだ結果、問題が1つもないとき
+  function showEmpty() {
+    el.play.hidden = true;
+    el.done.hidden = false;
+    el.doneTitle.textContent = "このジャンルの問題はありません";
+    el.doneText.textContent = "ジャンルの選び方を変えてみてね。";
+    el.practice.hidden = true;
+    el.progress.textContent = "";
+    el.stats.textContent = "";
+  }
+
   function start() {
     state.practice = false;
-    if (!questions.length) return;
+    if (!questions.length) {
+      showEmpty();
+      return;
+    }
     const i = records.pick(MODE, questions);
     if (i < 0) showDone();
     else load(i);
@@ -159,7 +177,12 @@
   });
 
   window.App.choice = {
-    count: questions.length,
+    count: () => questions.length,
+    // ジャンルが変わったら、問題を選び直して最初から
+    refresh() {
+      questions = all.filter(filter.matches);
+      start();
+    },
     start,
     shown() {},
   };
