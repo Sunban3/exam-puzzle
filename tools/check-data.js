@@ -9,6 +9,7 @@ for (const year of ["r05", "r06", "r07", "r08", "r01a", "h31s"]) {
   require(path.join(__dirname, "..", "data", `fe-${year}.js`));
 }
 require(path.join(__dirname, "..", "data", "fe-b.js"));
+require(path.join(__dirname, "..", "data", "techniques.js"));
 const questions = window.QUESTIONS;
 
 // IPAの解答例(公開問題は問1〜問20、午前は問1〜問80)。ア=0, イ=1, ウ=2, エ=3
@@ -78,6 +79,21 @@ bQuestions.forEach((q) => {
   if (q.answer !== official) errors.push(`${where}: 正解が解答例と違う (データ:${q.answer} 解答例:${official})`);
 });
 console.log(`科目B ${bQuestions.length}問`);
+
+// ===== 計算問題のテクニック =====
+// すべての計算問題にテクニックがあり、存在しないテクニックや問題を指していないか
+const TECH = window.TECHNIQUES || {};
+const TECH_FOR = window.TECHNIQUE_FOR || {};
+const calcIds = new Set(questions.filter((q) => q.calc).map((q) => q.id));
+calcIds.forEach((id) => {
+  if (!TECH_FOR[id]) errors.push(`${id}: 計算問題なのにテクニックがない`);
+});
+Object.entries(TECH_FOR).forEach(([id, f]) => {
+  if (!calcIds.has(id)) errors.push(`${id}: テクニックがあるのに計算問題ではない`);
+  if (!TECH[f.tech]) errors.push(`${id}: テクニック ${f.tech} が一覧にない`);
+  if (!f.hint || !Array.isArray(f.steps) || !f.steps.length) errors.push(`${id}: hint か steps がない`);
+});
+console.log(`テクニック ${Object.keys(TECH).length}種類`);
 
 const matchCount = questions.filter((q) => q.match).length;
 const calcCount = questions.filter((q) => q.calc).length;

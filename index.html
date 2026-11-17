@@ -61,6 +61,7 @@
         </section>
 
         <!-- 計算問題のときだけ出すメモ欄(問題と選択肢のあいだ) -->
+        <div class="tech-hint-box" id="m-tech-hint" hidden></div>
         <label class="memo-box calc-memo" id="m-memo-box" hidden>
           <span class="memo-title">計算メモ</span>
           <textarea id="m-memo" rows="4" placeholder="例）1Gバイト ＝ 2の30乗 → 2の30乗 ÷ 2の10乗 ＝ 2の20乗 …"></textarea>
@@ -136,6 +137,7 @@
         </section>
 
         <!-- 計算問題のときだけ出すメモ欄(問題と選択肢のあいだ) -->
+        <div class="tech-hint-box" id="c-tech-hint" hidden></div>
         <label class="memo-box calc-memo" id="c-memo-box" hidden>
           <span class="memo-title">計算メモ</span>
           <textarea id="c-memo" rows="4" placeholder="例）1Gバイト ＝ 2の30乗 → 2の30乗 ÷ 2の10乗 ＝ 2の20乗 …"></textarea>
@@ -257,10 +259,12 @@
   <script src="data/fe-r01a.js"></script>
   <script src="data/fe-h31s.js"></script>
   <script src="data/fe-b.js"></script>
+  <script src="data/techniques.js"></script>
   <!-- プログラム -->
   <script src="js/common.js"></script>
   <script src="js/records.js"></script>
   <script src="js/notes.js"></script>
+  <script src="js/technique.js"></script>
   <script src="js/filter.js"></script>
   <script src="js/session.js"></script>
   <script src="js/match.js"></script>

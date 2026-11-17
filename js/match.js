@@ -18,6 +18,7 @@
     tag: document.getElementById("m-tag-text"),
     calcBadge: document.getElementById("m-calc-badge"),
     memoBox: document.getElementById("m-memo-box"),
+    techHint: document.getElementById("m-tech-hint"),
     memo: document.getElementById("m-memo"),
     hint: document.getElementById("m-hint"),
     choices: document.getElementById("m-choices"),
@@ -74,6 +75,7 @@
     el.calcBadge.hidden = !q.calc;
     el.memoBox.hidden = !q.calc; // メモ欄は計算問題のときだけ
     el.memo.value = "";          // 問題ごとに白紙から
+    window.App.technique.showHint(el.techHint, q); // 計算問題のテクニックのヒント(あれば)
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
     el.source.textContent = kind === "match" ? sourceText(q, [matchNote(q)]) : sourceText(q);
@@ -305,6 +307,10 @@
       make("p", "score", ok ? "正解！" : `不正解… 正解は ${NUMBERS[q.answer]}`),
       session().reviewBox(q, rec)
     );
+
+    // テクニックを使った解き方
+    const tech = window.App.technique.explain(q);
+    if (tech) box.append(tech);
     box.hidden = false;
     el.next.hidden = false;
     el.next.textContent = session().isLast() ? "結果を見る" : "次の問題";

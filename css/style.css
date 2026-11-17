@@ -939,3 +939,26 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
   .tabs { max-width: 100%; overflow-x: auto; margin-left: 0; }
   .tabs button { padding: 6px 10px; white-space: nowrap; }
 }
+
+/* ===== 計算問題のテクニック ===== */
+.tech-hint-box { margin: -4px 0 10px; }
+.tech-hint {
+  border: 1px solid color-mix(in srgb, var(--c2) 50%, var(--border));
+  border-radius: 10px;
+  background: var(--surface);
+}
+.tech-hint summary { padding: 8px 12px; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: var(--c2); }
+.tech-hint-body { padding: 0 12px 10px; font-size: 0.9rem; }
+.tech-hint-body p { margin: 0; }
+.tech-name { margin: 0 0 4px; font-weight: 800; color: var(--c2); }
+.tech-steps { margin: 6px 0; padding-left: 1.4em; display: grid; gap: 2px; }
+.tech-lesson { margin: 6px 0 0; font-size: 0.85rem; color: var(--muted); }
+
+/* テクニック図鑑 */
+.tech-progress { margin: 0 0 10px; }
+.tech-book { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.tech-card { padding: 10px 12px; border: 1px solid var(--border); border-left: 4px solid var(--c2); border-radius: 10px; }
+.tech-card .tech-lesson { margin: 0; }
+.tech-card.locked { border-left-color: var(--border); opacity: 0.6; }
+.tech-card.locked .tech-name { color: var(--muted); }
+.tech-count { margin: 6px 0 0; font-size: 0.75rem; color: var(--muted); }

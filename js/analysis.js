@@ -82,7 +82,7 @@
         make("p", "an-empty", "問題を解くと、ここに得意・苦手なジャンルや、間違えやすい理由が出てくるよ。")));
       return;
     }
-    body.replaceChildren(overview(d), genres(d), reasons(d), weakQuestions(d), memoList(d));
+    body.replaceChildren(overview(d), genres(d), reasons(d), weakQuestions(d), techBook(d), memoList(d));
   }
 
   function card(title, ...children) {
@@ -201,6 +201,33 @@
       box.append(item);
     });
     return card("つまずいている問題", box, make("p", "an-note", "復習の時期が来ると、優先して出題されます"));
+  }
+
+  // テクニック図鑑：そのテクニックを使う計算問題を1回でも解くと解放される
+  function techBook(d) {
+    const { TECHNIQUES, FOR } = window.App.technique;
+    const uses = new Map(Object.keys(TECHNIQUES).map((k) => [k, []]));
+    Object.entries(FOR).forEach(([id, f]) => uses.get(f.tech)?.push(id));
+
+    const keys = Object.keys(TECHNIQUES);
+    const unlocked = keys.filter((k) => uses.get(k).some((id) => d.perQ.has(id)));
+    const grid = make("div", "tech-book");
+    // 解放したものを先に並べる(どちらも元の順番のまま)
+    const order = [...unlocked, ...keys.filter((k) => !unlocked.includes(k))];
+    order.forEach((k) => {
+      const open = unlocked.includes(k);
+      const t = TECHNIQUES[k];
+      const item = make("div", open ? "tech-card" : "tech-card locked");
+      const solved = uses.get(k).filter((id) => d.perQ.has(id)).length;
+      item.append(
+        make("p", "tech-name", open ? t.name : "？？？"),
+        make("p", "tech-lesson", open ? t.lesson : "このテクニックを使う計算問題を解くと解放されます"),
+        make("p", "tech-count", `解いた問題 ${solved} / ${uses.get(k).length}`)
+      );
+      grid.append(item);
+    });
+    const head = make("p", "an-note tech-progress", `解放したテクニック ${unlocked.length} / ${keys.length}`);
+    return card("テクニック図鑑", head, grid);
   }
 
   function reasonTags(keys) {

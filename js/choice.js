@@ -13,6 +13,7 @@
     tag: document.getElementById("c-tag-text"),
     calcBadge: document.getElementById("c-calc-badge"),
     memoBox: document.getElementById("c-memo-box"),
+    techHint: document.getElementById("c-tech-hint"),
     memo: document.getElementById("c-memo"),
     record: document.getElementById("c-record"),
     pastNote: document.getElementById("c-past-note"),
@@ -39,6 +40,7 @@
     el.calcBadge.hidden = !q.calc;
     el.memoBox.hidden = !q.calc; // メモ欄は計算問題のときだけ
     el.memo.value = "";          // 問題ごとに白紙から
+    window.App.technique.showHint(el.techHint, q); // 計算問題のテクニックのヒント(あれば)
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
     el.source.textContent = sourceText(q);
@@ -80,6 +82,10 @@
       make("p", "score", ok ? "正解！" : `不正解… 正解は ${NUMBERS[q.answer]}`),
       session().reviewBox(q, rec)
     );
+
+    // 計算問題なら、テクニックを使った解き方
+    const tech = window.App.technique.explain(q);
+    if (tech) box.append(tech);
 
     // あてはめデータがある問題は、ほかの選択肢が何の説明なのかも見せる
     if (q.match) {
