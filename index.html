@@ -18,9 +18,15 @@
 
     <!-- ===== 用語あてはめ ===== -->
     <section class="view" id="view-match" role="tabpanel">
-      <p class="progress" id="m-progress"></p>
+      <div class="view-head">
+        <p class="stats" id="m-stats"></p>
+        <p class="progress" id="m-progress"></p>
+      </div>
       <section class="question">
-        <p class="tag" id="m-tag"></p>
+        <div class="question-head">
+          <p class="tag" id="m-tag"></p>
+          <p class="record" id="m-record"></p>
+        </div>
         <p class="stem" id="m-stem"></p>
         <div class="extras" id="m-extras"></div>
         <p class="hint">選択肢をタップしてから、正しい説明をタップしよう</p>
@@ -48,9 +54,15 @@
 
     <!-- ===== 4択クイズ ===== -->
     <section class="view" id="view-choice" role="tabpanel" hidden>
-      <p class="progress" id="c-progress"></p>
+      <div class="view-head">
+        <p class="stats" id="c-stats"></p>
+        <p class="progress" id="c-progress"></p>
+      </div>
       <section class="question">
-        <p class="tag" id="c-tag"></p>
+        <div class="question-head">
+          <p class="tag" id="c-tag"></p>
+          <p class="record" id="c-record"></p>
+        </div>
         <p class="stem" id="c-stem"></p>
         <div class="extras" id="c-extras"></div>
       </section>
@@ -72,6 +84,7 @@
   <script src="data/fe-r08.js"></script>
   <!-- プログラム -->
   <script src="js/common.js"></script>
+  <script src="js/records.js"></script>
   <script src="js/match.js"></script>
   <script src="js/choice.js"></script>
   <script src="js/app.js"></script>

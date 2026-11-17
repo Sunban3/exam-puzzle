@@ -2,7 +2,8 @@
 (() => {
   "use strict";
 
-  const { NUMBERS, make, shuffle, sourceText, renderExtras, matchItems, matchNote } = window.App;
+  const { NUMBERS, make, shuffle, sourceText, renderExtras, matchItems, matchNote, records } = window.App;
+  const MODE = "match";
   const SVG_NS = "http://www.w3.org/2000/svg";
 
   // あてはめ形式のデータ(match があるもの)だけを使う
@@ -23,6 +24,8 @@
     check: document.getElementById("m-check"),
     next: document.getElementById("m-next"),
     source: document.getElementById("m-source"),
+    stats: document.getElementById("m-stats"),
+    record: document.getElementById("m-record"),
   };
 
   const state = {
@@ -60,12 +63,19 @@
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
     el.source.textContent = sourceText(q, [matchNote(q)]);
+    showRecord(q);
     el.result.hidden = true;
     el.result.replaceChildren();
     el.next.hidden = true;
     el.check.hidden = false;
 
     render();
+  }
+
+  // ----- 学習記録の表示 -----
+  function showRecord(q) {
+    el.record.textContent = records.questionText(records.get(MODE, q.id));
+    el.stats.textContent = records.summaryText(records.summary(MODE, questions.map((x) => x.id)));
   }
 
   // ----- 画面を作る(状態 → 見た目) -----
@@ -218,6 +228,8 @@
 
     const correctCount = q.items.filter((_, t) => state.pairs[t] === t).length;
     const allCorrect = correctCount === q.items.length;
+    records.add(MODE, q.id, allCorrect); // 4つ全部合っていたら「正解」として記録
+    showRecord(q);
     const box = el.result;
     box.replaceChildren();
     box.classList.toggle("perfect", allCorrect);

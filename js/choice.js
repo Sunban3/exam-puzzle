@@ -2,7 +2,8 @@
 (() => {
   "use strict";
 
-  const { NUMBERS, make, sourceText, renderExtras, matchItems } = window.App;
+  const { NUMBERS, make, sourceText, renderExtras, matchItems, records } = window.App;
+  const MODE = "choice";
   const questions = window.QUESTIONS || [];
 
   const el = {
@@ -14,6 +15,8 @@
     result: document.getElementById("c-result"),
     next: document.getElementById("c-next"),
     source: document.getElementById("c-source"),
+    stats: document.getElementById("c-stats"),
+    record: document.getElementById("c-record"),
   };
 
   const state = {
@@ -32,11 +35,18 @@
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
     el.source.textContent = sourceText(q);
+    showRecord(q);
     el.result.hidden = true;
     el.result.replaceChildren();
     el.next.hidden = true;
 
     render();
+  }
+
+  // ----- 学習記録の表示 -----
+  function showRecord(q) {
+    el.record.textContent = records.questionText(records.get(MODE, q.id));
+    el.stats.textContent = records.summaryText(records.summary(MODE, questions.map((x) => x.id)));
   }
 
   // ----- 画面を作る(状態 → 見た目) -----
@@ -76,6 +86,8 @@
     render();
 
     const ok = i === q.answer;
+    records.add(MODE, q.id, ok);
+    showRecord(q);
     const box = el.result;
     box.replaceChildren();
     box.classList.toggle("perfect", ok);
