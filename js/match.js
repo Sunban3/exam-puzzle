@@ -1,20 +1,24 @@
 // 用語あてはめモード(問題を表示して、答え合わせをする役)
+// あてはめ問題は線でつなぎ、計算問題(5問に1回)は4択で出す
 (() => {
   "use strict";
 
-  const { NUMBERS, make, shuffle, sourceText, renderExtras, matchItems, matchNote, records, filter } = window.App;
+  const { NUMBERS, make, shuffle, sourceText, renderExtras, renderChoices, matchItems, matchNote, records, filter } = window.App;
   const MODE = "match";
   const SVG_NS = "http://www.w3.org/2000/svg";
   const session = () => window.App.sessions[MODE]; // 流れの管理役(app.js で作られる)
 
-  // あてはめ形式のデータ(match があるもの)だけを使う
+  // あてはめ形式の問題(match があるもの)と、計算問題(calc: true)を使う
   const all = (window.QUESTIONS || [])
-    .filter((q) => q.match)
-    .map((q) => ({ ...q, items: matchItems(q) }));
+    .filter((q) => q.match || q.calc)
+    .map((q) => (q.match ? { ...q, items: matchItems(q) } : q));
   let questions = all.filter(filter.matches); // ジャンルで絞り込んだ問題
 
   const el = {
-    tag: document.getElementById("m-tag"),
+    tag: document.getElementById("m-tag-text"),
+    calcBadge: document.getElementById("m-calc-badge"),
+    hint: document.getElementById("m-hint"),
+    choices: document.getElementById("m-choices"),
     record: document.getElementById("m-record"),
     stem: document.getElementById("m-stem"),
     extras: document.getElementById("m-extras"),
@@ -29,6 +33,8 @@
   };
 
   const state = {
+    kind: "match",      // "match"(線でつなぐ) か "choice"(計算問題の4択)
+    picked: null,       // 4択のとき、選んだ番号
     index: 0,
     meaningOrder: [],
     pairs: {},          // { 選択肢の番号: 説明の番号 }
@@ -48,9 +54,12 @@
   // ----- 問題を表示する -----
   function play(i) {
     const q = questions[i];
+    const kind = q.match ? "match" : "choice";
     Object.assign(state, {
+      kind,
+      picked: null,
       index: i,
-      meaningOrder: shuffle(q.items.map((_, n) => n)),
+      meaningOrder: kind === "match" ? shuffle(q.items.map((_, n) => n)) : [],
       pairs: {},
       selectedTerm: null,
       justPaired: null,
@@ -59,13 +68,20 @@
     });
 
     el.tag.textContent = q.tag;
+    el.calcBadge.hidden = !q.calc;
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
-    el.source.textContent = sourceText(q, [matchNote(q)]);
+    el.source.textContent = kind === "match" ? sourceText(q, [matchNote(q)]) : sourceText(q);
     el.result.hidden = true;
     el.result.replaceChildren();
     el.next.hidden = true;
-    el.check.hidden = false;
+
+    // 問題の種類で、使う部品を切り替える
+    const isMatch = kind === "match";
+    el.board.hidden = !isMatch;
+    el.hint.hidden = !isMatch;
+    el.check.hidden = !isMatch;
+    el.choices.hidden = isMatch;
     showRecord(q);
 
     render();
@@ -78,6 +94,12 @@
   // ----- 画面を作る(状態 → 見た目) -----
   function render() {
     const q = questions[state.index];
+
+    if (state.kind === "choice") {
+      renderChoices(el.choices, q, { picked: state.picked, onPick: answerChoice, entering: state.entering });
+      state.entering = false;
+      return;
+    }
 
     el.terms.replaceChildren(...q.items.map((item, t) => termCard(item, t)));
     el.meanings.replaceChildren(...state.meaningOrder.map((m, row) => meaningCard(q, m, row)));
@@ -216,7 +238,7 @@
   });
 
   window.addEventListener("resize", () => {
-    if (questions.length) drawLines();
+    if (questions.length && state.kind === "match") drawLines();
   });
 
   // ----- 答え合わせ -----
@@ -259,15 +281,40 @@
     el.next.textContent = session().isLast() ? "結果を見る" : "次の問題";
   }
 
+  // ----- 計算問題(4択)に答える -----
+  function answerChoice(i) {
+    if (state.picked !== null) return;
+    const q = questions[state.index];
+    state.picked = i;
+    render();
+
+    const ok = i === q.answer;
+    const rec = session().answered(q, ok);
+    showRecord(q);
+
+    const box = el.result;
+    box.replaceChildren();
+    box.classList.toggle("perfect", ok);
+    box.append(
+      make("p", "score", ok ? "正解！" : `不正解… 正解は ${NUMBERS[q.answer]}`),
+      make("p", "next-review", records.nextText(rec))
+    );
+    box.hidden = false;
+    el.next.hidden = false;
+    el.next.textContent = session().isLast() ? "結果を見る" : "次の問題";
+  }
+
   el.check.addEventListener("click", check);
   el.next.addEventListener("click", () => session().next());
 
   // ----- 外から使う窓口 -----
   window.App.match = {
     questions: () => questions,
+    count: () => questions.filter((q) => q.match).length, // タブに出す数は、あてはめ問題だけ
+    calcIsExtra: true, // 計算問題は「5問に1回」がオンのときだけ出す
     play,
     refresh() { questions = all.filter(filter.matches); },
     // 非表示から表示に切り替わったら、カードの位置が変わるので線を引き直す
-    shown() { drawLines(); },
+    shown() { if (state.kind === "match") drawLines(); },
   };
 })();

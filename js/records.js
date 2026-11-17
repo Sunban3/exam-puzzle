@@ -96,20 +96,34 @@
   // 1. 復習の時期が来た問題(時期を過ぎているものほど先)
   // 2. まだ解いていない問題(データの順)
   // 3. それでも足りなければ、次の復習が近い問題から
-  function plan(mode, questions, n) {
+  // calcEvery を指定すると、その問題数ごとに1回、計算問題(calc: true)を入れる
+  // skipCalc を true にすると、計算問題を出さない
+  function plan(mode, questions, n, { calcEvery = 0, skipCalc = false } = {}) {
     const now = Date.now();
     const list = questions.map((q, index) => {
       const rec = get(mode, q.id);
       const st = status(rec, now);
-      return { index, st, due: st === "new" ? 0 : dueAt(rec) };
+      return { index, st, calc: Boolean(q.calc), due: st === "new" ? 0 : dueAt(rec) };
     });
     const byDue = (a, b) => a.due - b.due;
     const ordered = [
       ...list.filter((x) => x.st === "due").sort(byDue),
       ...list.filter((x) => x.st === "new"),
       ...list.filter((x) => x.st === "later").sort(byDue),
-    ];
-    return ordered.slice(0, n).map((x) => x.index);
+    ].filter((x) => !(skipCalc && x.calc));
+    if (!calcEvery) return ordered.slice(0, n).map((x) => x.index);
+
+    // 計算問題と、それ以外に分けてから組み合わせる
+    // 5問目・10問目…は計算問題、それ以外は計算以外。片方が尽きたら、もう片方で埋める
+    const calc = ordered.filter((x) => x.calc);
+    const normal = ordered.filter((x) => !x.calc);
+    const out = [];
+    while (out.length < n && (calc.length || normal.length)) {
+      const wantCalc = (out.length + 1) % calcEvery === 0;
+      const from = wantCalc ? (calc.length ? calc : normal) : (normal.length ? normal : calc);
+      out.push(from.shift().index);
+    }
+    return out;
   }
 
   // 今日の残り(復習・新規)と、いちばん近い次の復習

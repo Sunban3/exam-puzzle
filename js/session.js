@@ -7,12 +7,14 @@
   const { make, storage, records } = window.App;
   const STEP = 5;
   const DEFAULT_COUNT = 15;
+  const CALC_EVERY = 5; // 計算問題を何問ごとに入れるか
 
   // player に必要なもの:
   //   questions() … いまの絞り込みで出せる問題の配列
   //   play(i)     … i 番目の問題を表示する
   //   refresh()   … ジャンルが変わったときに問題を選び直す
   //   shown()     … 画面に表示されたとき
+  //   calcIsExtra … true なら、計算問題は「5問に1回」のときだけ出す(オフなら出さない)
   function createSession({ mode, prefix, player }) {
     const $ = (name) => document.getElementById(`${prefix}-${name}`);
     const el = {
@@ -24,6 +26,8 @@
       minus: $("minus"),
       plus: $("plus"),
       start: $("start"),
+      calcRow: $("calc-row"),
+      calc: $("calc"),
       play: $("play"),
       summary: $("summary"),
       summaryBody: $("summary-body"),
@@ -32,8 +36,10 @@
     };
 
     const COUNT_KEY = `exam-puzzle:count:${mode}`;
+    const CALC_KEY = `exam-puzzle:calc:${mode}`;
     const state = {
       target: loadTarget(), // 何問やるか
+      calcOn: storage.get(CALC_KEY) !== "off", // 計算問題を5問ごとに入れるか(最初はオン)
       queue: [],            // 出題する問題の番号の列
       pos: 0,               // いま何問目か(0から)
       results: [],          // { q, ok } の列
@@ -44,9 +50,21 @@
       return Number.isInteger(n) && n > 0 ? n : DEFAULT_COUNT;
     }
 
+    // 出せる問題の中に計算問題があるか(なければ設定を出さない)
+    function hasCalc() {
+      return player.questions().some((q) => q.calc);
+    }
+
+    // いまの設定で出せる問題の数
+    function available() {
+      const qs = player.questions();
+      if (player.calcIsExtra && !(state.calcOn && hasCalc())) return qs.filter((q) => !q.calc).length;
+      return qs.length;
+    }
+
     // 選べる範囲: 最小は5問(問題がそれより少なければ全部)、最大は全問
     function limits() {
-      const total = player.questions().length;
+      const total = available();
       return { min: Math.min(STEP, total), max: total };
     }
 
@@ -73,7 +91,7 @@
       el.progress.textContent = "";
       el.stats.textContent = statsText();
 
-      const total = player.questions().length;
+      const total = available();
       if (total === 0) {
         el.count.textContent = "0問";
         el.setupInfo.textContent = "このジャンルの問題はありません。ジャンルの選び方を変えてみてね。";
@@ -93,6 +111,9 @@
       el.setupInfo.textContent = ready >= state.target
         ? `復習 ${qu.due}問・新しい問題 ${qu.fresh}問 の中から出題します`
         : `復習と新しい問題は ${ready}問。足りない分は、次の復習が近い問題から出します`;
+
+      el.calcRow.hidden = !hasCalc();
+      el.calc.checked = state.calcOn;
     }
 
     function changeTarget(diff) {
@@ -107,7 +128,9 @@
 
     // ===== 解く =====
     function start() {
-      state.queue = records.plan(mode, player.questions(), state.target);
+      const calcEvery = state.calcOn && hasCalc() ? CALC_EVERY : 0;
+      const skipCalc = Boolean(player.calcIsExtra) && !calcEvery;
+      state.queue = records.plan(mode, player.questions(), state.target, { calcEvery, skipCalc });
       state.pos = 0;
       state.results = [];
       if (!state.queue.length) return;
@@ -219,6 +242,11 @@
       el.summaryBody.replaceChildren(...nodes);
     }
 
+    el.calc.addEventListener("change", () => {
+      state.calcOn = el.calc.checked;
+      storage.set(CALC_KEY, state.calcOn ? "on" : "off");
+      showSetup(); // 出せる問題数が変わることがあるので、表示を更新
+    });
     el.minus.addEventListener("click", () => changeTarget(-STEP));
     el.plus.addEventListener("click", () => changeTarget(STEP));
     el.start.addEventListener("click", start);

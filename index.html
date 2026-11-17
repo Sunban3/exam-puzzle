@@ -37,6 +37,11 @@
           <button type="button" id="m-plus" aria-label="5問ふやす">＋5</button>
         </div>
         <p class="setup-info" id="m-setup-info"></p>
+        <label class="switch" id="m-calc-row" hidden>
+          <input type="checkbox" id="m-calc">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span>5問に1回、計算問題を入れる</span>
+        </label>
         <button type="button" class="primary" id="m-start">はじめる</button>
       </section>
 
@@ -44,12 +49,12 @@
       <div class="play" id="m-play" hidden>
         <section class="question">
           <div class="question-head">
-            <p class="tag" id="m-tag"></p>
+            <p class="tag" id="m-tag"><span id="m-tag-text"></span> <span class="calc-badge" id="m-calc-badge" hidden>計算</span></p>
             <p class="record" id="m-record"></p>
           </div>
           <p class="stem" id="m-stem"></p>
           <div class="extras" id="m-extras"></div>
-          <p class="hint">選択肢をタップしてから、正しい説明をタップしよう</p>
+          <p class="hint" id="m-hint">選択肢をタップしてから、正しい説明をタップしよう</p>
         </section>
 
         <div class="board" id="m-board">
@@ -63,6 +68,9 @@
             <ul class="cards" id="m-meanings"></ul>
           </div>
         </div>
+
+        <!-- 計算問題のときだけ使う4択 -->
+        <ol class="choices" id="m-choices" hidden></ol>
 
         <section class="result" id="m-result" hidden></section>
         <footer class="actions">
@@ -98,6 +106,11 @@
           <button type="button" id="c-plus" aria-label="5問ふやす">＋5</button>
         </div>
         <p class="setup-info" id="c-setup-info"></p>
+        <label class="switch" id="c-calc-row" hidden>
+          <input type="checkbox" id="c-calc">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span>5問に1回、計算問題を入れる</span>
+        </label>
         <button type="button" class="primary" id="c-start">はじめる</button>
       </section>
 
@@ -105,7 +118,7 @@
       <div class="play" id="c-play" hidden>
         <section class="question">
           <div class="question-head">
-            <p class="tag" id="c-tag"></p>
+            <p class="tag" id="c-tag"><span id="c-tag-text"></span> <span class="calc-badge" id="c-calc-badge" hidden>計算</span></p>
             <p class="record" id="c-record"></p>
           </div>
           <p class="stem" id="c-stem"></p>

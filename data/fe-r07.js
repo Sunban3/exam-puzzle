@@ -52,7 +52,7 @@ window.QUESTIONS = (window.QUESTIONS || []).concat([
     answer: 1,
   },
   {
-    id: "fe-r07-a-04", year: "R7", no: 4,
+    id: "fe-r07-a-04", year: "R7", no: 4, calc: true,
     tag: "テクノロジ：システム構成",
     stem: "MTBFは4,000時間，MTTRは1,000時間の装置がある。今後の6年間は，予防保守によってMTBFを前年に比べて毎年100時間ずつ改善し，遠隔保守によってMTTRを前年に比べて毎年100時間ずつ改善していく計画である。6年経過後の稼働率は幾らか。",
     choices: ["0.88", "0.90", "0.92", "0.94"],
@@ -99,7 +99,7 @@ window.QUESTIONS = (window.QUESTIONS || []).concat([
     answer: 2,
   },
   {
-    id: "fe-r07-a-07", year: "R7", no: 7,
+    id: "fe-r07-a-07", year: "R7", no: 7, calc: true,
     tag: "テクノロジ：ネットワーク",
     stem: "1Gバイトの動画データを40Mビット／秒の回線を使用してダウンロードしたところ，5分掛かった。このときの回線利用率はおよそ何％か。ここで，ダウンロード時には動画データに20％の制御情報が付加されるものとする。",
     choices: ["10", "53", "67", "80"],
@@ -236,7 +236,7 @@ window.QUESTIONS = (window.QUESTIONS || []).concat([
     answer: 3,
   },
   {
-    id: "fe-r07-a-19", year: "R7", no: 19,
+    id: "fe-r07-a-19", year: "R7", no: 19, calc: true,
     tag: "ストラテジ：企業活動",
     stem: "表の条件で喫茶店を開業したい。月10万円の利益を出すためには，1客席当たり1日平均何人の客が必要か。",
     tables: [

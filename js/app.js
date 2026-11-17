@@ -20,7 +20,7 @@
   // タブの横の問題数(絞り込み後の数)
   function updateCounts() {
     Object.keys(players).forEach((name) => {
-      document.getElementById(`count-${name}`).textContent = `${players[name].questions().length}問`;
+      document.getElementById(`count-${name}`).textContent = `${players[name].count()}問`;
     });
   }
 

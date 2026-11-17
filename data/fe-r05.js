@@ -1,13 +1,14 @@
 // 令和5年度 基本情報技術者試験 科目A 公開問題
 // 出典: https://www.ipa.go.jp/shiken/mondai-kaiotu/sg_fe/koukai/2023r05.html
 // choices はもとの選択肢ア〜エの順(0=ア, 1=イ, 2=ウ, 3=エ)。answer は正解の番号
+// calc: true … 計算問題(4択クイズで「5問に1回」出す設定に使う)
 // match があれば「用語あてはめ」にも出る
 //   terms    … 選択肢が説明文のとき、それぞれの用語名
 //   meanings … 選択肢が用語のとき、それぞれの説明文(独自に作成)
 // 図を使う問10・問11・問13は未収録
 window.QUESTIONS = (window.QUESTIONS || []).concat([
   {
-    id: "fe-r05-a-01", year: "R5", no: 1,
+    id: "fe-r05-a-01", year: "R5", no: 1, calc: true,
     tag: "テクノロジ：基礎理論",
     stem: "16進小数0.Cを10進小数に変換したものはどれか。",
     choices: ["0.12", "0.55", "0.75", "0.84"],

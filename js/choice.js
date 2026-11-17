@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const { NUMBERS, make, sourceText, renderExtras, matchItems, records, filter } = window.App;
+  const { NUMBERS, make, sourceText, renderExtras, renderChoices, matchItems, records, filter } = window.App;
   const MODE = "choice";
   const session = () => window.App.sessions[MODE]; // 流れの管理役(app.js で作られる)
 
@@ -10,7 +10,8 @@
   let questions = all.filter(filter.matches); // ジャンルで絞り込んだ問題
 
   const el = {
-    tag: document.getElementById("c-tag"),
+    tag: document.getElementById("c-tag-text"),
+    calcBadge: document.getElementById("c-calc-badge"),
     record: document.getElementById("c-record"),
     stem: document.getElementById("c-stem"),
     extras: document.getElementById("c-extras"),
@@ -32,6 +33,7 @@
     Object.assign(state, { index: i, picked: null, entering: true });
 
     el.tag.textContent = q.tag;
+    el.calcBadge.hidden = !q.calc;
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
     el.source.textContent = sourceText(q);
@@ -50,29 +52,7 @@
   // ----- 画面を作る(状態 → 見た目) -----
   function render() {
     const q = questions[state.index];
-    const answered = state.picked !== null;
-
-    el.choices.replaceChildren(
-      ...q.choices.map((text, i) => {
-        const li = make("li");
-        const btn = make("button", "choice");
-        btn.type = "button";
-        btn.style.setProperty("--i", i);
-        btn.append(make("span", "badge", NUMBERS[i]), make("span", "label", text));
-
-        if (answered) {
-          btn.disabled = true;
-          if (i === q.answer) btn.classList.add("correct");
-          else if (i === state.picked) btn.classList.add("wrong");
-          else btn.classList.add("dim");
-        }
-
-        btn.addEventListener("click", () => answer(i));
-        li.append(btn);
-        return li;
-      })
-    );
-    el.choices.classList.toggle("enter", state.entering);
+    renderChoices(el.choices, q, { picked: state.picked, onPick: answer, entering: state.entering });
     state.entering = false;
   }
 
@@ -117,6 +97,7 @@
   // ----- 外から使う窓口 -----
   window.App.choice = {
     questions: () => questions,
+    count: () => questions.length,
     play,
     refresh() { questions = all.filter(filter.matches); },
     shown() {},

@@ -34,6 +34,8 @@ questions.forEach((q) => {
   const official = KANA[OFFICIAL[q.year]?.[q.no - 1]];
   if (q.answer !== official) errors.push(`${where}: 正解が解答例と違う (データ:${q.answer} 解答例:${official})`);
 
+  if ("calc" in q && q.calc !== true) errors.push(`${where}: calcはtrueだけを書く`);
+
   if (q.match) {
     const { terms, meanings } = q.match;
     if (!terms && !meanings) errors.push(`${where}: matchにtermsもmeaningsもない`);
@@ -43,7 +45,8 @@ questions.forEach((q) => {
 });
 
 const matchCount = questions.filter((q) => q.match).length;
-console.log(`全${questions.length}問(あてはめ ${matchCount}問)`);
+const calcCount = questions.filter((q) => q.calc).length;
+console.log(`全${questions.length}問(あてはめ ${matchCount}問・計算 ${calcCount}問)`);
 if (errors.length) {
   console.log(`エラー ${errors.length}件`);
   errors.forEach((e) => console.log("  " + e));

@@ -77,6 +77,34 @@ window.App = window.App || {};
     return "選択肢に用語名を追加";
   }
 
+  // 4択の選択肢ボタンを並べる(4択モードと、あてはめモードの計算問題で使う)
+  //   picked … 選んだ番号(まだなら null)。選んだあとは正解・不正解の色をつける
+  //   onPick … ボタンが押されたときに呼ぶ関数
+  function renderChoices(container, q, { picked, onPick, entering }) {
+    const answered = picked !== null;
+    container.replaceChildren(
+      ...q.choices.map((text, i) => {
+        const li = make("li");
+        const btn = make("button", "choice");
+        btn.type = "button";
+        btn.style.setProperty("--i", i);
+        btn.append(make("span", "badge", NUMBERS[i]), make("span", "label", text));
+
+        if (answered) {
+          btn.disabled = true;
+          if (i === q.answer) btn.classList.add("correct");
+          else if (i === picked) btn.classList.add("wrong");
+          else btn.classList.add("dim");
+        }
+
+        btn.addEventListener("click", () => onPick(i));
+        li.append(btn);
+        return li;
+      })
+    );
+    container.classList.toggle("enter", Boolean(entering));
+  }
+
   // ブラウザに保存(使えない環境でもエラーで止まらないように try/catch)
   const storage = {
     get(key) {
@@ -87,5 +115,5 @@ window.App = window.App || {};
     },
   };
 
-  Object.assign(window.App, { NUMBERS, make, shuffle, sourceText, renderExtras, matchItems, matchNote, storage });
+  Object.assign(window.App, { NUMBERS, make, shuffle, sourceText, renderExtras, renderChoices, matchItems, matchNote, storage });
 })();
