@@ -255,57 +255,5 @@ h2 { font-size: 0.9rem; color: var(--muted); margin: 0 0 8px; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
-/* ===== モード切り替え ===== */
+
 .app-header { flex-wrap: wrap; gap: 8px 16px; }
-.mode {
-  display: inline-flex;
-  padding: 3px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  margin-left: auto;
-}
-.mode button {
-  border: none;
-  background: none;
-  color: var(--muted);
-  font: inherit;
-  font-size: 0.85rem;
-  padding: 4px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.mode button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-
-/* ===== 並び替えモード ===== */
-.board.mode-sort { gap: 16px; }
-.board.mode-sort .card { min-height: var(--row-h, auto); }
-.card.static { cursor: default; border-color: var(--pair); }
-.card.static:active { transform: none; }
-.card.sortable {
-  border-color: var(--pair);
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  transition: transform 0.2s ease, border-color 0.2s, background 0.2s, box-shadow 0.2s;
-}
-.card.sortable .badge { background: var(--pair); }
-.card.sortable .label { flex: 1; }
-.grip { color: var(--muted); letter-spacing: -2px; flex: none; }
-.card.sortable.selected {
-  transform: none;
-  background: color-mix(in srgb, var(--pair) 12%, var(--surface));
-}
-.card.dragging {
-  position: relative;
-  z-index: 2;
-  cursor: grabbing;
-  transition: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-}
-
-.card.swap-target {
-  border-style: dashed;
-  background: color-mix(in srgb, var(--pair) 10%, var(--surface));
-}

@@ -5,19 +5,12 @@
   const questions = window.QUESTIONS || [];
   const NUMBERS = ["1", "2", "3", "4", "5", "6"];
   const SVG_NS = "http://www.w3.org/2000/svg";
-  const MODE_KEY = "exam-puzzle:mode";
-  const HINTS = {
-    line: "選択肢をタップしてから、正しい説明をタップしよう",
-    sort: "説明をドラッグして、となりの選択肢と合うように並べ替えよう(タップで2つを入れ替えることもできる)",
-  };
 
   // よく使う画面の部品を、最初にまとめて取っておく
   const el = {
-    mode: document.getElementById("mode"),
     progress: document.getElementById("progress"),
     tag: document.getElementById("tag"),
     stem: document.getElementById("stem"),
-    hint: document.getElementById("hint"),
     board: document.getElementById("board"),
     lines: document.getElementById("lines"),
     terms: document.getElementById("terms"),
@@ -30,14 +23,11 @@
 
   // ===== 2. 状態(いま画面がどうなっているか) =========================
   const state = {
-    mode: loadMode(),  // "line"(線でつなぐ) か "sort"(並び替え)
     index: 0,          // 何問目か
     meaningOrder: [],  // 説明の並び順(items の番号)
     pairs: {},         // { 選択肢の番号: 説明の番号 }
-    selectedTerm: null,// 線モード: いま選んでいる選択肢
-    swapPick: null,    // 並び替えモード: タップで選んだ行
-    justPaired: null,  // 線モード: たったいまつないだ選択肢
-    justMoved: [],     // 並び替えモード: たったいま入れ替えた行(2つ)
+    selectedTerm: null,// いま選んでいる選択肢
+    justPaired: null,  // たったいまつないだ選択肢(線のアニメ用)
     checked: false,    // 答え合わせ済みか
     entering: false,   // 問題を開いた直後か(登場アニメ用)
   };
@@ -60,6 +50,7 @@
     return node;
   }
 
+  // 選択肢ごとの色(CSSの --c1〜--c4 を使う)
   const colorOf = (t) => `var(--c${(t % 4) + 1})`;
 
   function ownerOf(meaningIndex) {
@@ -67,82 +58,44 @@
     return found === undefined ? null : Number(found);
   }
 
-  // 並び替えモードでは「同じ行にあるもの同士」がペアになる
-  function syncPairsFromOrder() {
-    state.pairs = {};
-    state.meaningOrder.forEach((m, row) => { state.pairs[row] = m; });
-  }
-
-  // ブラウザに保存(使えない環境でもエラーで止まらないように try/catch)
-  function loadMode() {
-    try {
-      const saved = localStorage.getItem(MODE_KEY);
-      return saved === "sort" ? "sort" : "line";
-    } catch {
-      return "line";
-    }
-  }
-  function saveMode(mode) {
-    try { localStorage.setItem(MODE_KEY, mode); } catch { /* 保存できなくても遊べる */ }
-  }
-
   // ===== 4. 問題を読み込む ===========================================
-  function load(i, { shuffleAgain = true } = {}) {
+  function load(i) {
     const q = questions[i];
     Object.assign(state, {
       index: i,
-      meaningOrder: shuffleAgain ? shuffle(q.items.map((_, n) => n)) : state.meaningOrder,
+      meaningOrder: shuffle(q.items.map((_, n) => n)),
       pairs: {},
       selectedTerm: null,
-      swapPick: null,
       justPaired: null,
-      justMoved: [],
       checked: false,
+      entering: true, // 次の render だけ、カードが下から出てくるアニメをつける
     });
-    if (state.mode === "sort") syncPairsFromOrder();
 
     el.progress.textContent = `${i + 1} / ${questions.length}`;
     el.tag.textContent = q.tag;
     el.stem.textContent = q.stem;
-    el.hint.textContent = HINTS[state.mode];
     el.source.textContent = q.source;
     el.result.hidden = true;
     el.result.replaceChildren();
     el.next.hidden = true;
     el.check.hidden = false;
 
-    state.entering = true; // 次の render だけ、カードが下から出てくるアニメをつける
     render();
   }
 
   // ===== 5. 画面を作る(状態 → 見た目) ================================
   function render() {
     const q = questions[state.index];
-    const sort = state.mode === "sort";
-
-    el.mode.querySelectorAll("button").forEach((b) => {
-      b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode));
-    });
 
     el.terms.replaceChildren(...q.items.map((item, t) => termCard(item, t)));
-    el.meanings.replaceChildren(
-      ...state.meaningOrder.map((m, row) => (sort ? sortCard(q, m, row) : meaningCard(q, m, row)))
-    );
+    el.meanings.replaceChildren(...state.meaningOrder.map((m, row) => meaningCard(q, m, row)));
     el.check.disabled = Object.keys(state.pairs).length !== q.items.length;
-    el.board.classList.toggle("mode-sort", sort);
     el.board.classList.toggle("enter", state.entering);
-    state.entering = false;
-    el.board.classList.toggle("picking", !sort && state.selectedTerm !== null);
+    el.board.classList.toggle("picking", state.selectedTerm !== null);
 
-    if (sort) {
-      el.lines.replaceChildren();
-      equalizeRows();
-    } else {
-      el.board.style.removeProperty("--row-h");
-      drawLines();
-    }
+    drawLines();
+    state.entering = false;
     state.justPaired = null;
-    state.justMoved = [];
   }
 
   function termCard(item, t) {
@@ -154,26 +107,21 @@
     btn.style.setProperty("--i", t);
     btn.append(make("span", "badge", NUMBERS[t]), make("span", "label", item.term));
 
-    if (state.mode === "sort") {
-      btn.classList.add("static");
-      btn.tabIndex = -1;
-    } else {
-      if (state.selectedTerm === t) btn.classList.add("selected");
-      if (state.pairs[t] !== undefined) btn.classList.add("paired");
-      btn.addEventListener("click", () => {
-        state.selectedTerm = state.selectedTerm === t ? null : t;
-        render();
-      });
-    }
+    if (state.selectedTerm === t) btn.classList.add("selected");
+    if (state.pairs[t] !== undefined) btn.classList.add("paired");
     if (state.checked) {
       btn.classList.add(state.pairs[t] === t ? "correct" : "wrong");
       btn.disabled = true;
     }
+
+    btn.addEventListener("click", () => {
+      state.selectedTerm = state.selectedTerm === t ? null : t;
+      render();
+    });
     li.append(btn);
     return li;
   }
 
-  // --- 線モードの説明カード ---
   function meaningCard(q, m, row) {
     const li = make("li");
     const btn = make("button", "card meaning");
@@ -214,121 +162,8 @@
     return li;
   }
 
-  // --- 並び替えモードの説明カード ---
-  function sortCard(q, m, row) {
-    const li = make("li");
-    const btn = make("button", "card meaning sortable");
-    btn.type = "button";
-    btn.dataset.meaning = m;
-    btn.style.setProperty("--i", row);
-    btn.style.setProperty("--pair", colorOf(row));
-    btn.append(
-      make("span", "badge", NUMBERS[row]),
-      make("span", "label", q.items[m].meaning),
-      make("span", "grip", "⋮⋮")
-    );
-    if (state.swapPick === row) btn.classList.add("selected");
-    if (state.justMoved.includes(row)) btn.classList.add("pop");
-
-    if (state.checked) {
-      btn.classList.add(m === row ? "correct" : "wrong");
-      btn.disabled = true;
-    } else {
-      btn.addEventListener("pointerdown", (e) => startDrag(e, row, btn));
-      // キーボード(Enter/Space)で押されたときだけ click で入れ替え
-      btn.addEventListener("click", (e) => { if (e.detail === 0) tapRow(row); });
-    }
-    li.append(btn);
-    return li;
-  }
-
-  // 並び替えモードで、左右のカードの高さをそろえる
-  function equalizeRows() {
-    el.board.style.removeProperty("--row-h");
-    const cards = el.board.querySelectorAll(".card");
-    let max = 0;
-    cards.forEach((c) => { max = Math.max(max, c.offsetHeight); });
-    el.board.style.setProperty("--row-h", `${max}px`);
-  }
-
-  // ===== 6. 並び替え(ドラッグ) =======================================
-  let drag = null;
-
-  function startDrag(e, row, node) {
-    if (state.checked || e.button > 0) return;
-    const items = [...el.meanings.querySelectorAll(".card")];
-    const step = items.length > 1
-      ? items[1].getBoundingClientRect().top - items[0].getBoundingClientRect().top
-      : 0;
-    drag = { row, node, items, step, startY: e.clientY, target: row, moved: false };
-    node.setPointerCapture(e.pointerId);
-    node.addEventListener("pointermove", onDragMove);
-    node.addEventListener("pointerup", endDrag, { once: true });
-    node.addEventListener("pointercancel", endDrag, { once: true });
-  }
-
-  function onDragMove(e) {
-    if (!drag) return;
-    const dy = e.clientY - drag.startY;
-    if (!drag.moved && Math.abs(dy) < 6) return; // 少し動いただけならタップ扱い
-    drag.moved = true;
-    drag.node.classList.add("dragging");
-    drag.node.style.transform = `translateY(${dy}px) scale(1.03)`;
-
-    const last = drag.items.length - 1;
-    drag.target = Math.min(last, Math.max(0, drag.row + Math.round(dy / drag.step)));
-
-    // 落とす先のカードだけを、元の場所へ逃がして見せる(ほかは動かさない)
-    drag.items.forEach((item, i) => {
-      if (i === drag.row) return;
-      if (i === drag.target) {
-        item.style.transform = `translateY(${(drag.row - i) * drag.step}px)`;
-        item.classList.add("swap-target");
-      } else {
-        item.style.transform = "";
-        item.classList.remove("swap-target");
-      }
-    });
-  }
-
-  function endDrag() {
-    if (!drag) return;
-    const { row, node, target, moved } = drag;
-    node.removeEventListener("pointermove", onDragMove);
-    drag = null;
-
-    if (!moved) {
-      tapRow(row);
-      return;
-    }
-    swapRows(row, target);
-    render();
-  }
-
-  // 2つの行の説明を入れ替える(ドラッグもタップもここを使う)
-  function swapRows(a, b) {
-    state.swapPick = null;
-    if (a === b) return;
-    const order = state.meaningOrder.slice();
-    [order[a], order[b]] = [order[b], order[a]];
-    state.meaningOrder = order;
-    state.justMoved = [a, b];
-    syncPairsFromOrder();
-  }
-
-  // タップで2つの行を入れ替える
-  function tapRow(row) {
-    if (state.swapPick === null) {
-      state.swapPick = row;
-    } else if (state.swapPick === row) {
-      state.swapPick = null;
-    } else {
-      swapRows(state.swapPick, row);
-    }
-    render();
-  }
-
-  // ===== 7. 線を引く(線モード) =======================================
+  // ===== 6. 線を引く ==================================================
+  // カードの位置を測って、選択肢の右端 → 説明の左端 にカーブを描く
   function anchor(node, side) {
     const box = el.board.getBoundingClientRect();
     const r = node.getBoundingClientRect();
@@ -365,6 +200,7 @@
       el.lines.append(path);
     });
 
+    // 選択中は、カーソルについてくる線(ゴム線)を用意しておく
     if (state.selectedTerm !== null && !state.checked) {
       const rubber = document.createElementNS(SVG_NS, "path");
       rubber.id = "rubber";
@@ -389,12 +225,9 @@
     rubber.setAttribute("d", curve(a, b));
   });
 
-  window.addEventListener("resize", () => {
-    if (state.mode === "sort") equalizeRows();
-    else drawLines();
-  });
+  window.addEventListener("resize", drawLines);
 
-  // ===== 8. 答え合わせ ===============================================
+  // ===== 7. 答え合わせ ===============================================
   function check() {
     const q = questions[state.index];
     state.checked = true;
@@ -409,6 +242,7 @@
       make("p", "score", allCorrect ? `全問正解！ ${correctCount} / ${q.items.length}` : `${correctCount} / ${q.items.length} 正解`)
     );
 
+    // 間違えたものだけ、正しい組み合わせを見せる
     q.items.forEach((item, t) => {
       if (state.pairs[t] === t) return;
       const row = make("p", "fix");
@@ -416,6 +250,7 @@
       box.append(row);
     });
 
+    // もともとの4択問題の答え
     if (typeof q.answer === "number") {
       const ans = make("div", "original");
       ans.append(
@@ -432,14 +267,7 @@
     el.next.textContent = state.index + 1 < questions.length ? "次の問題" : "最初から";
   }
 
-  // ===== 9. スタート =================================================
-  el.mode.addEventListener("click", (e) => {
-    const btn = e.target.closest("button[data-mode]");
-    if (!btn || btn.dataset.mode === state.mode) return;
-    state.mode = btn.dataset.mode;
-    saveMode(state.mode);
-    load(state.index, { shuffleAgain: false }); // 同じ問題・同じ並びのままモードだけ切り替え
-  });
+  // ===== 8. スタート =================================================
   el.check.addEventListener("click", check);
   el.next.addEventListener("click", () => load((state.index + 1) % questions.length));
 
