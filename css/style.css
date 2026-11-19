@@ -1150,3 +1150,27 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
   cursor: crosshair;
 }
 .sketch-hint { margin: 0; font-size: 0.72rem; color: var(--muted); }
+
+/* ===== タッチ・ペンでの操作性 ===== */
+/* すばやく2回タップしたときの拡大をやめる(2本指で広げる拡大はそのまま使える) */
+html { touch-action: manipulation; }
+/* ボタンやカードの文字は、選択しなくていい(ペンや長押しで選ばれてしまうのを防ぐ) */
+button,
+.chip,
+.card,
+.tabs,
+.sketch,
+.memo-switch,
+.memo-title,
+.area-label {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none; /* 長押しで出るメニューも出さない */
+}
+.sketch-canvas { -webkit-touch-callout: none; }
+/* 手書きで線を書いている間は、ページのどこも選択できなくする */
+body.is-drawing,
+body.is-drawing * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}

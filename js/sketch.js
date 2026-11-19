@@ -10,6 +10,12 @@
 
   let mode = storage.get(MODE_KEY) === "draw" ? "draw" : "text"; // 保存値を疑う
   const pads = []; // 作った手書き欄(切り替えを全部の欄にそろえるため)
+  let drawing = 0; // いま書いている線の数(書いている間は、ページの文字を選択させない)
+
+  // 書いている間に文字の選択が始まりそうになったら止める
+  document.addEventListener("selectstart", (e) => {
+    if (drawing) e.preventDefault();
+  });
 
   // memoBox … メモ欄の入れ物、textarea … 文字のメモ
   function attach(memoBox, textarea) {
@@ -141,9 +147,28 @@
       return !(e.pointerType === "touch" && state.penSeen);
     };
 
+    // iPad の Safari は、ペンでも「すばやく2回タップで拡大」「長押しで文字選択・虫めがね・メニュー」が起きる
+    // 手書きの欄の上のタッチは、全部ここで止めて、ブラウザに渡さない(passive: false でないと止められない)
+    ["touchstart", "touchmove", "touchend"].forEach((type) =>
+      canvas.addEventListener(type, (e) => e.preventDefault(), { passive: false })
+    );
+
+    // 書いている間は、ペンが欄の外にはみ出しても、ページの文字が選択されないようにする
+    const startDrawing = () => {
+      drawing += 1;
+      document.body.classList.add("is-drawing");
+      const sel = window.getSelection && window.getSelection();
+      if (sel && sel.rangeCount) sel.removeAllRanges(); // すでに選ばれてしまった文字も外す
+    };
+    const stopDrawing = () => {
+      drawing = Math.max(0, drawing - 1);
+      if (!drawing) document.body.classList.remove("is-drawing");
+    };
+
     canvas.addEventListener("pointerdown", (e) => {
       if (!accept(e)) return;
       e.preventDefault();
+      startDrawing();
       try {
         canvas.setPointerCapture(e.pointerId); // 欄の外まで動いても線を続ける
       } catch {
@@ -166,6 +191,7 @@
       const { id, ...stroke } = state.current;
       state.strokes.push(stroke);
       state.current = null;
+      stopDrawing();
       redraw();
     };
     canvas.addEventListener("pointerup", end);
@@ -173,7 +199,10 @@
 
     function clear() {
       state.strokes = [];
-      state.current = null;
+      if (state.current) {
+        state.current = null;
+        stopDrawing(); // 書いている途中で消したときも「書いている」状態を終わらせる
+      }
       redraw();
     }
 
