@@ -14,9 +14,9 @@
   const DAY = 24 * 60 * 60 * 1000;
 
   // バックアップに入れてよいキー(知らないキーは書き出さない・読み込まない)
-  const ALLOWED = /^exam-puzzle:(records|notes|genres|timer|view|changelog-seen|count:[A-Za-z]+|calc:[A-Za-z]+)$/;
+  const ALLOWED = /^exam-puzzle:(records|notes|genres|timer|view|memo-mode|changelog-seen|count:[A-Za-z]+|calc:[A-Za-z]+)$/;
   // 端末ごとの設定。今の端末に値があれば今の値を残す(なければ読み込んだ値を使う)
-  const SETTINGS = /^exam-puzzle:(genres|timer|view|count:[A-Za-z]+|calc:[A-Za-z]+)$/;
+  const SETTINGS = /^exam-puzzle:(genres|timer|view|memo-mode|count:[A-Za-z]+|calc:[A-Za-z]+)$/;
 
   // ===== 書き出す =====
   function allKeys() {

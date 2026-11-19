@@ -21,6 +21,7 @@
     extras: document.getElementById("b-extras"),
     choices: document.getElementById("b-choices"),
     memo: document.getElementById("b-memo"),
+    memoBox: document.getElementById("b-memo-box"),
     result: document.getElementById("b-result"),
     next: document.getElementById("b-next"),
     source: document.getElementById("b-source"),
@@ -31,6 +32,9 @@
     desk: document.getElementById("b-desk"),
     play: document.getElementById("b-play"),
   };
+
+  // メモ欄に「文字／手書き」の切り替えをつける(sketch.js)
+  const memoPad = window.App.sketch.attach(el.memoBox, el.memo);
 
   // プログラムを「触れる」表示にする部品(trace.js)
   const trace = window.App.createTrace({
@@ -117,7 +121,7 @@
     el.traceBox.hidden = !hasCode;
     trace.reset(q.code); // 変数・トレース表・いまここ印を白紙に戻す
     el.source.textContent = sourceText(q);
-    el.memo.value = ""; // メモは問題ごとに白紙から
+    memoPad.clear(); // メモは問題ごとに白紙から(文字も手書きも)
     el.result.hidden = true;
     el.result.replaceChildren();
     el.next.hidden = true;

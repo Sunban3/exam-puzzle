@@ -9,6 +9,7 @@ window.CHANGELOG = [
   {
     date: "2026-11-19",
     changes: [
+      { type: "new", text: "メモ欄を手書きにも切り替えられるようにしました（iPad の Apple Pencil・マウス・指で書けます）" },
       { type: "new", text: "記録のバックアップを追加しました。自己分析タブから書き出し・読み込みができ、PCとスマホの記録を合わせられます" },
       { type: "new", text: "更新履歴を見られるようにしました" },
       { type: "new", text: "科目Bに、IPAのサンプル問題25問を追加しました（科目Bは全49問）" },

@@ -65,10 +65,10 @@
 
         <!-- 計算問題のときだけ出すメモ欄(問題と選択肢のあいだ) -->
         <div class="tech-hint-box" id="m-tech-hint" hidden></div>
-        <label class="memo-box calc-memo" id="m-memo-box" hidden>
+        <div class="memo-box calc-memo" id="m-memo-box" hidden>
           <span class="memo-title">計算メモ</span>
-          <textarea id="m-memo" rows="4" placeholder="例）1Gバイト ＝ 2の30乗 → 2の30乗 ÷ 2の10乗 ＝ 2の20乗 …"></textarea>
-        </label>
+          <textarea id="m-memo" rows="4" aria-label="計算メモ" placeholder="例）1Gバイト ＝ 2の30乗 → 2の30乗 ÷ 2の10乗 ＝ 2の20乗 …"></textarea>
+        </div>
 
         <div class="board" id="m-board">
           <svg class="lines" id="m-lines" aria-hidden="true"></svg>
@@ -141,10 +141,10 @@
 
         <!-- 計算問題のときだけ出すメモ欄(問題と選択肢のあいだ) -->
         <div class="tech-hint-box" id="c-tech-hint" hidden></div>
-        <label class="memo-box calc-memo" id="c-memo-box" hidden>
+        <div class="memo-box calc-memo" id="c-memo-box" hidden>
           <span class="memo-title">計算メモ</span>
-          <textarea id="c-memo" rows="4" placeholder="例）1Gバイト ＝ 2の30乗 → 2の30乗 ÷ 2の10乗 ＝ 2の20乗 …"></textarea>
-        </label>
+          <textarea id="c-memo" rows="4" aria-label="計算メモ" placeholder="例）1Gバイト ＝ 2の30乗 → 2の30乗 ÷ 2の10乗 ＝ 2の20乗 …"></textarea>
+        </div>
 
         <ol class="choices" id="c-choices"></ol>
 
@@ -221,10 +221,10 @@
                 <p class="trace-hint">プログラムの変数をタップ → 列が増える ／ 行番号をタップ → 「いまここ」の印</p>
                 <div id="b-trace"></div>
               </div>
-              <label class="memo-box">
+              <div class="memo-box" id="b-memo-box">
                 <span class="memo-title">メモ</span>
-                <textarea id="b-memo" rows="5" placeholder="例）i=1: x=3, y=5 → i=2: ..."></textarea>
-              </label>
+                <textarea id="b-memo" rows="5" aria-label="メモ" placeholder="例）i=1: x=3, y=5 → i=2: ..."></textarea>
+              </div>
             </section>
 
             <section class="b-answer" aria-labelledby="b-answer-label">
@@ -279,6 +279,7 @@
   <script src="js/common.js"></script>
   <script src="js/records.js"></script>
   <script src="js/notes.js"></script>
+  <script src="js/sketch.js"></script>
   <script src="js/technique.js"></script>
   <script src="js/filter.js"></script>
   <script src="js/session.js"></script>

@@ -25,6 +25,9 @@
     source: document.getElementById("c-source"),
   };
 
+  // メモ欄に「文字／手書き」の切り替えをつける(sketch.js)
+  const memoPad = window.App.sketch.attach(el.memoBox, el.memo);
+
   const state = {
     index: 0,
     picked: null,   // 選んだ選択肢の番号(まだなら null)
@@ -39,7 +42,7 @@
     el.tag.textContent = q.tag;
     el.calcBadge.hidden = !q.calc;
     el.memoBox.hidden = !q.calc; // メモ欄は計算問題のときだけ
-    el.memo.value = "";          // 問題ごとに白紙から
+    memoPad.clear();             // 問題ごとに白紙から(文字も手書きも)
     window.App.technique.showHint(el.techHint, q); // 計算問題のテクニックのヒント(あれば)
     el.stem.textContent = q.stem;
     el.extras.replaceChildren(renderExtras(q));
