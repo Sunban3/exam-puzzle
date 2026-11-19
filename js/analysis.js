@@ -77,12 +77,14 @@
   // ===== 描く =====
   function render() {
     const d = collect();
-    if (d.perQ.size === 0 && d.memo.length === 0) {
-      body.replaceChildren(card("まだ記録がありません",
+    const hasRecords = d.perQ.size > 0 || d.memo.length > 0;
+    const backup = window.App.backup.card({ hasRecords }); // 新しい端末でも読み込めるように、記録がなくても出す
+    if (!hasRecords) {
+      body.replaceChildren(backup, card("まだ記録がありません",
         make("p", "an-empty", "問題を解くと、ここに得意・苦手なジャンルや、間違えやすい理由が出てくるよ。")));
       return;
     }
-    body.replaceChildren(overview(d), genres(d), reasons(d), weakQuestions(d), techBook(d), memoList(d));
+    body.replaceChildren(backup, overview(d), genres(d), reasons(d), weakQuestions(d), techBook(d), memoList(d));
   }
 
   function card(title, ...children) {

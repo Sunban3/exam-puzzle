@@ -1058,3 +1058,57 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 .changelog-type.new { background: var(--accent-soft); color: var(--accent); }
 .changelog-type.improve { background: var(--ok-soft); color: var(--ok); }
 .changelog-type.fix { background: var(--ng-soft); color: var(--ng); }
+
+/* ===== 記録のバックアップ ===== */
+.backup-status { margin: 0 0 4px; font-weight: 700; font-size: 0.9rem; }
+.backup-status.warn { color: var(--c2); }
+.backup-done {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--ok-soft);
+  color: var(--ok);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.backup-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.backup-row button:not(.primary) {
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.backup-msg { margin: 6px 0 0; font-size: 0.85rem; color: var(--muted); }
+.backup-import { margin-top: 12px; }
+.backup-import summary { cursor: pointer; font-size: 0.9rem; font-weight: 700; }
+.backup-import[open] { display: grid; gap: 8px; }
+.backup-import button {
+  justify-self: start;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.backup-import button.primary { border: none; background: var(--accent); color: #fff; }
+.backup-text {
+  display: block;
+  width: 100%;
+  min-height: 4.5em;
+  margin-top: 6px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.75rem;
+}
+.backup-preview p { margin: 0 0 6px; font-size: 0.85rem; }
+.backup-error { color: var(--ng); font-weight: 700; }
