@@ -45,6 +45,16 @@ window.TECHNIQUES = {
   lostGuard: { name: "変わったことで外れた守りを探す", lesson: "設定や運用を変える話では、「今まで何が守ってくれていたか」を先に探す。外れた守りを補う対策や、そこを突くリスクが答え。" },
   askedScope: { name: "聞かれている範囲だけで判断する", lesson: "設問が「ルール3に違反しているもの」のように範囲をしぼっていたら、ほかのルールの違反は正しくても選ばない。" },
   timeline: { name: "時間の線を引いて考える", lesson: "バックアップやRPO・RTOの問題は、曜日と時刻の線を書いて、障害の時刻・バックアップの時刻を置いてから数える。" },
+  // ----- 科目B(サンプル問題で追加) -----
+  elseifOrder: { name: "elseif は「上がだめだったとき」だけ", lesson: "if・elseif は上から順に調べ、最初に真になった所だけ実行する。下の条件には「上の条件が偽」という前提がつくので、きびしい条件ほど上に置く。" },
+  emptyCase: { name: "空のときを先に考える", lesson: "リストや配列を扱う処理は、「まだ1つもないとき」だけ特別扱いになることが多い。最初の if はたいてい空かどうかの判定。" },
+  assignOrder: { name: "代入は上から1行ずつ", lesson: "代入した瞬間に前の値は消える。入れ替えたいときは、先に別の変数に退避しておく必要がある。" },
+  writeState: { name: "中身を毎回書き出す", lesson: "キューやスタックは、追加・取り出しのたびに中身を1行で書き出すと、取り出す順番を間違えない。" },
+  treeOrder: { name: "出力の位置で順番が決まる", lesson: "木を再帰でたどるとき、「自分を出力」が子をたどる前なら行きがけ順、間なら通りがけ順、後なら帰りがけ順。いちばん左下から考える。" },
+  minimax: { name: "自分は最大、相手は最小", lesson: "ゲームの木は、下から順に、自分の番なら子の最大、相手の番なら子の最小を選んでいく（ミニマックス法）。" },
+  modDiv: { name: "余りで取り出し、商で捨てる", lesson: "下位 n ビットを取り出すのは 2ⁿ で割った余り、取り出した分を捨てて次へ進むのは 2ⁿ で割った商。10進数で一の位を取り出すのと同じ。" },
+  responsibility: { name: "誰の担当範囲かを分ける", lesson: "クラウドでは、IaaS・PaaS・SaaS で事業者と利用者の担当が変わる。PaaS なら OS やミドルウェアは事業者、アプリは利用者側（委託先も含む）。" },
+  leastPrivilege: { name: "職務分離と最小権限", lesson: "入力（作業）する人と承認する人は分ける。それぞれには、業務に必要な権限だけを付ける。" },
 };
 
 window.TECHNIQUE_FOR = {
@@ -229,6 +239,33 @@ window.TECHNIQUE_FOR = {
   "fe-r08-b-04": { tech: "invariant", hint: "p は「今いる要素番号」。次の要素に進むには p に何を入れる？ 末尾の要素は何が未定義？" },
   "fe-r08-b-05": { tech: "easyBlankFirst", hint: "a は名前一覧に「まだない色の名前」を入れる場所なので先に決まる。b は j 番目の色が k 番目の名前と同じかどうか。" },
   "fe-r08-b-06": { tech: "askedScope", hint: "聞かれているのは「ルール3（ログのアクセス管理）」の違反だけ。(一)〜(四) がそれぞれ図1のどのルールの話かを先に分けよう。" },
+
+  // ----- 科目B サンプル問題 -----
+  "fe-sb-01": { tech: "elseifOrder", hint: "elseif の行に来るのは、age が 3 以下ではないとき。4 以上という条件は、もう一度書く必要がある？" },
+  "fe-sb-02": { tech: "plusOne", hint: "left ＝ 1 のとき、入れ替える相手は5番目。arrayの要素数 － left だと何番目になる？" },
+  "fe-sb-03": { tech: "emptyCase", hint: "listHead ← curr（新しい要素を先頭にする）のは、リストがどんなとき？ 末尾にたどり着いたら、その次に何をつなぐ？" },
+  "fe-sb-04": { tech: "trackIndex", hint: "外側の i が行、内側の j が列。1行目から順に、0でない値の (行, 列, 値) を書き出してみよう。" },
+  "fe-sb-05": { tech: "formulaMap", hint: "例の 2 ÷ 5 の「2」と「5」を、それぞれ freq と freqE で言い直してみよう。" },
+  "fe-sbs-01": { tech: "assignOrder", hint: "1行ずつ、x・y・z の値を書き出そう。x ← y を実行したあと、元の x の値は残っている？" },
+  "fe-sbs-02": { tech: "elseifOrder", hint: "num ＝ 15 を入れてみよう。最初の if が「3で割り切れる」だと、どの結果になってしまう？" },
+  "fe-sbs-03": { tech: "trackIndex", hint: "i と out の中身をトレース表に並べよう。tail は out のどの値？" },
+  "fe-sbs-04": { tech: "easyBlankFirst", hint: "x と y が等しくなるまで、引き算は何回も繰り返す？ 1回だけ？ そこから a と c が決まる。" },
+  "fe-sbs-05": { tech: "formulaMap", hint: "√ は何乗と同じ？ 内側の x² ＋ y² から順に pow で書いていこう。" },
+  "fe-sbs-06": { tech: "smallTrace", hint: "8ビットだと長いので、右端の2〜3ビットだけで試そう。r を左にずらしながら、rbyte の右端を1つずつ入れていくとどうなる？" },
+  "fe-sbs-07": { tech: "unroll", hint: "factorial(3) ＝ 3 × 2 × 1。これを factorial(2) を使って書くと？" },
+  "fe-sbs-08": { tech: "writeState", hint: "enqueue と dequeue のたびに、キューの中身を「A1 B2 C2 D3」のように書き出そう。優先度が同じなら先に入れたものから出る。" },
+  "fe-sbs-09": { tech: "treeOrder", hint: "「左をたどる → 自分を出力 → 右をたどる」の順。order(1) から左へ下りていくと、最初に出力されるのはどの節？" },
+  "fe-sbs-10": { tech: "invariant", hint: "for を抜けたとき、prev は何番目の要素？ 消したい要素の1つ前なら、prev の次を何につなぎ替えればいい？" },
+  "fe-sbs-11": { tech: "counterexample", hint: "値 v は bins[v] に入る。同じ値が2回あると、bins のどこかが空のまま残らない？" },
+  "fe-sbs-12": { tech: "formulaMap", hint: "cnt は「一致した数」。比べるのは、要素番号が同じものどうし。" },
+  "fe-sbs-13": { tech: "smallTrace", hint: "要素数2の配列 {1, 2} で、target ＝ 2 を探してみよう。low と middle はどう変わる？" },
+  "fe-sbs-14": { tech: "plusOne", hint: "要素数 － 1 ＝ 9。p ＝ 0.25 なら 9 × 0.25 を切り上げて、さらに ＋1 した番目。" },
+  "fe-sbs-15": { tech: "minimax", hint: "A と B の子は「相手の手番」。相手は、自分にとって一番悪い手を選ぶ。子の評価値の最大？ 最小？" },
+  "fe-sbs-16": { tech: "modDiv", hint: "後ろの2バイトは 10xxxxxx で、x は6ビット。下位6ビットを取り出すには、何で割った余り？" },
+  "fe-sbs-17": { tech: "responsibility", hint: "PaaS では、OS や DBMS は誰が管理する？ Web アプリの脆弱性対策は、契約で誰がすることになっている？" },
+  "fe-sbs-18": { tech: "lostGuard", hint: "今までは「VPN は A 社 PC だけ」が守りだった。客先常駐の約800人が個人 PC でつなぐと、何が増えて、何が新しく起きる？" },
+  "fe-sbs-19": { tech: "leastPrivilege", hint: "B 社販売責任者は「閲覧して、口頭で差戻しを頼む」だけ。B 社販売担当者は「入力する」。承認は誰の仕事？" },
+  "fe-sbs-20": { tech: "leastPrivilege", hint: "今の問題は「編集した本人が、自分で確認して承認している」こと。誤りを防ぐには、誰と誰を分ける？" },
 
   "fe-h31s-am-78": {
     tech: "shortage",

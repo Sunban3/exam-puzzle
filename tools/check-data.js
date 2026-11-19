@@ -9,6 +9,7 @@ for (const year of ["r05", "r06", "r07", "r08", "r01a", "h31s"]) {
   require(path.join(__dirname, "..", "data", `fe-${year}.js`));
 }
 require(path.join(__dirname, "..", "data", "fe-b.js"));
+require(path.join(__dirname, "..", "data", "fe-b-sample.js"));
 require(path.join(__dirname, "..", "data", "techniques.js"));
 const questions = window.QUESTIONS;
 
@@ -62,6 +63,8 @@ const OFFICIAL_B = {
   R6B: "イエエイオウ",
   R7B: "カアイクオク",
   R8B: "エカアエイケ",
+  SB: "カウアイウオ", // サンプル問題(2022年4月)。問6は入れていない
+  SBS: "カウカエオアカエウカアエウクアクカエエカ", // サンプル問題セット(2022年12月)
 };
 const bQuestions = window.KAMOKU_B || [];
 bQuestions.forEach((q) => {
