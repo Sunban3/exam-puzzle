@@ -814,7 +814,7 @@ button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 .trace-step { color: var(--muted); text-align: center; }
 .trace-table input {
-  width: 4.5em;
+  width: calc(4ch + 12px); /* 実際の幅は trace.js が文字数に合わせて変える */
   font: inherit;
   font-family: ui-monospace, Consolas, monospace;
   padding: 2px 4px;
@@ -1173,4 +1173,14 @@ body.is-drawing,
 body.is-drawing * {
   -webkit-user-select: none !important;
   user-select: none !important;
+}
+
+/* iPad・iPhone の Safari は、文字が16pxより小さい入力欄を触ると、自動で画面を拡大してしまう
+   タッチで操作する端末では、入力欄の文字を16pxにする(PCの見た目は変えない) */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
 }

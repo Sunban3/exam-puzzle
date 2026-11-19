@@ -14,6 +14,8 @@
     "true", "false", "null", "of", "in", "is", "empty",
   ]);
   const colorOf = (n) => `var(--c${(n % 4) + 1})`;
+  const MIN_CHARS = 4;  // 入力欄のいちばん狭い幅(文字数)
+  const MAX_CHARS = 20; // いちばん広い幅。これより長い値は、欄の中で横にスクロールする
 
   function createTrace({ codeEl, tableEl }) {
     const state = {
@@ -149,8 +151,12 @@
           input.type = "text";
           input.value = row[name] ?? "";
           input.setAttribute("aria-label", `${r + 1}行目の${name}`);
+          fitWidth(input);
           // 入力した値は状態に保存するだけ(表を作り直すと入力中の文字が消えるので、ここでは描き直さない)
-          input.addEventListener("input", () => { row[name] = input.value; });
+          input.addEventListener("input", () => {
+            row[name] = input.value;
+            fitWidth(input); // 打った文字の長さに合わせて、欄を広げる
+          });
           td.append(input);
           tr.append(td);
         });
@@ -180,6 +186,13 @@
       const wrap = make("div", "table-wrap");
       wrap.append(table);
       tableEl.replaceChildren(wrap, actions);
+    }
+
+    // 入力欄の幅を、中の文字の長さに合わせる(8ビットの2進数 00000011 なども全部見えるように)
+    // ch は「0 の文字1つ分の幅」。等幅フォントなので、文字数 ＝ 幅になる
+    function fitWidth(input) {
+      const chars = Math.min(MAX_CHARS, Math.max(MIN_CHARS, input.value.length + 1));
+      input.style.width = `calc(${chars}ch + 12px)`; // 12px は左右の余白と枠の分
     }
 
     // 新しい問題になったら、全部リセット
