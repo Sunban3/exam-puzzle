@@ -17,6 +17,21 @@
     if (drawing) e.preventDefault();
   });
 
+  // ===== 腕や手のひらのタッチを見分ける(ページ全体で使う) =====
+  // ペンで書いている最中と、ペンを最後に使ってから少しの間は、指(touch)のタッチを「手が当たっただけ」とみなす
+  const PALM_MS = 1500;
+  let lastPenAt = 0;
+  const markPen = (e) => {
+    if (e.pointerType === "pen") lastPenAt = Date.now();
+  };
+  // capture(true) で、どの要素の上でペンを使っても気づけるようにする
+  document.addEventListener("pointerdown", markPen, true);
+  document.addEventListener("pointermove", markPen, true);
+
+  function isPalm(pointerType) {
+    return pointerType === "touch" && (drawing > 0 || Date.now() - lastPenAt < PALM_MS);
+  }
+
   // memoBox … メモ欄の入れ物、textarea … 文字のメモ
   function attach(memoBox, textarea) {
     const state = {
@@ -229,5 +244,5 @@
     pads.forEach((p) => p.show());
   }
 
-  window.App.sketch = { attach };
+  window.App.sketch = { attach, isPalm };
 })();

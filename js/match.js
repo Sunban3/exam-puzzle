@@ -107,7 +107,7 @@
     const q = questions[state.index];
 
     if (state.kind === "choice") {
-      renderChoices(el.choices, q, { picked: state.picked, onPick: answerChoice, entering: state.entering });
+      renderChoices(el.choices, q, { picked: state.picked, onPick: answerChoice, entering: state.entering, confirm: true }); // メモ欄がある問題は、答えるのを2段階に
       state.entering = false;
       return;
     }

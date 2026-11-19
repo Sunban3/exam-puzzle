@@ -63,7 +63,7 @@
   // ----- 画面を作る(状態 → 見た目) -----
   function render() {
     const q = questions[state.index];
-    renderChoices(el.choices, q, { picked: state.picked, onPick: answer, entering: state.entering });
+    renderChoices(el.choices, q, { picked: state.picked, onPick: answer, entering: state.entering, confirm: Boolean(q.calc) }); // メモ欄がある問題は、答えるのを2段階に
     state.entering = false;
   }
 

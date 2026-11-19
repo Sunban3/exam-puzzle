@@ -138,7 +138,7 @@
 
   function render() {
     const q = questions[state.index];
-    renderChoices(el.choices, q, { picked: state.picked, onPick: answer, entering: state.entering });
+    renderChoices(el.choices, q, { picked: state.picked, onPick: answer, entering: state.entering, confirm: true }); // メモ欄がある問題は、答えるのを2段階に
     state.entering = false;
   }
 

@@ -1184,3 +1184,16 @@ body.is-drawing * {
     font-size: 16px !important;
   }
 }
+
+/* ===== 答えるのを2段階に(選ぶ → 決定) ===== */
+.choice.pending {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.choice.pending .badge { background: var(--accent); color: #fff; }
+.choice-confirm { margin: 10px 0 4px; }
+.choice-confirm button { width: 100%; }
+.choice-confirm button:disabled { opacity: 0.45; cursor: default; }
+/* 選択肢を隠したときは、決定ボタンも一緒に隠す(用語あてはめの、あてはめ問題のとき) */
+.choices[hidden] + .choice-confirm { display: none; }
