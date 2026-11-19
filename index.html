@@ -9,7 +9,10 @@
 <body>
   <main class="app">
     <header class="app-header">
-      <h1>資格勉強パズル</h1>
+      <div class="title-row">
+        <h1>資格勉強パズル</h1>
+        <button type="button" class="link-button" id="changelog-open">更新履歴<span class="new-badge" id="changelog-new" hidden>NEW</span></button>
+      </div>
       <nav class="tabs" id="tabs" role="tablist" aria-label="モード">
         <button type="button" role="tab" data-view="match">用語あてはめ <span class="count" id="count-match"></span></button>
         <button type="button" role="tab" data-view="choice">4択クイズ <span class="count" id="count-choice"></span></button>
@@ -252,6 +255,15 @@
     </section>
   </main>
 
+  <!-- 更新履歴(画面の上に重ねて出す) -->
+  <dialog class="changelog" id="changelog" aria-labelledby="changelog-title">
+    <div class="changelog-head">
+      <h2 id="changelog-title">更新履歴</h2>
+      <button type="button" class="changelog-close" id="changelog-close" aria-label="閉じる">×</button>
+    </div>
+    <div class="changelog-body" id="changelog-body"></div>
+  </dialog>
+
   <!-- 問題データ(年度ごとのファイル) -->
   <script src="data/fe-r05.js"></script>
   <script src="data/fe-r06.js"></script>
@@ -262,6 +274,7 @@
   <script src="data/fe-b.js"></script>
   <script src="data/fe-b-sample.js"></script>
   <script src="data/techniques.js"></script>
+  <script src="data/changelog.js"></script>
   <!-- プログラム -->
   <script src="js/common.js"></script>
   <script src="js/records.js"></script>
@@ -274,6 +287,7 @@
   <script src="js/trace.js"></script>
   <script src="js/kamokuB.js"></script>
   <script src="js/analysis.js"></script>
+  <script src="js/changelog.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
