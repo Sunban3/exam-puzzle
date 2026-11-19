@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const { storage } = window.App;
+  const { storage, shuffle } = window.App;
   const KEY = "exam-puzzle:records";
   const HISTORY_LIMIT = 20; // 1問あたり、直近何回分の履歴を残すか
 
@@ -139,11 +139,14 @@
   }
 
   // 1回分(n問)の出題リストを作る
+  // 【どの問題を選ぶか】
   // 1. 復習の時期が来た問題(時期を過ぎているものほど先)。ただし新しい問題の枠は空けておく
-  // 2. まだ解いていない問題(データの順)
+  // 2. まだ解いていない問題(ランダムに選ぶ。どの年度・ジャンルからも出るように)
   // 3. 枠に入りきらなかった復習
   // 4. それでも足りなければ、次の復習が近い問題から
-  // calcEvery を指定すると、その問題数ごとに1回、計算問題(calc: true)を入れる
+  // 【どの順番で出すか】
+  // 選んだ問題の並びをシャッフルする(前半が復習ばかりにならないように)
+  // calcEvery を指定すると、その問題数ごとに1回、計算問題(calc: true)を入れる(この位置は混ぜても変わらない)
   // skipCalc を true にすると、計算問題を出さない
   function plan(mode, questions, n, { calcEvery = 0, skipCalc = false } = {}) {
     const now = Date.now();
@@ -155,13 +158,13 @@
     const byDue = (a, b) => a.due - b.due;
     const usable = list.filter((x) => !(skipCalc && x.calc));
     const due = usable.filter((x) => x.st === "due").sort(byDue);
-    const fresh = usable.filter((x) => x.st === "new");
+    const fresh = shuffle(usable.filter((x) => x.st === "new")); // データの順ではなく、ランダムに選ぶ
     const later = usable.filter((x) => x.st === "later").sort(byDue);
 
     // 復習は「n問 － 新しい問題の枠」までにする。入りきらなかった復習は、新しい問題のあとに回す
     const dueRoom = n - newQuota(n, fresh.length);
     const ordered = [...due.slice(0, dueRoom), ...fresh, ...due.slice(dueRoom), ...later];
-    if (!calcEvery) return ordered.slice(0, n).map((x) => x.index);
+    if (!calcEvery) return shuffle(ordered.slice(0, n)).map((x) => x.index);
 
     // 計算問題と、それ以外に分けてから組み合わせる
     // 5問目・10問目…は計算問題、それ以外は計算以外。片方が尽きたら、もう片方で埋める
@@ -171,9 +174,17 @@
     while (out.length < n && (calc.length || normal.length)) {
       const wantCalc = (out.length + 1) % calcEvery === 0;
       const from = wantCalc ? (calc.length ? calc : normal) : (normal.length ? normal : calc);
-      out.push(from.shift().index);
+      out.push(from.shift());
     }
-    return out;
+    return mixKeepingCalc(out).map((x) => x.index);
+  }
+
+  // 計算問題の位置(5問目・10問目…)はそのままにして、並びを混ぜる
+  // 計算問題どうし、それ以外どうしで、それぞれシャッフルしてから元の位置に戻す
+  function mixKeepingCalc(items) {
+    const calcs = shuffle(items.filter((x) => x.calc));
+    const normals = shuffle(items.filter((x) => !x.calc));
+    return items.map((x) => (x.calc ? calcs : normals).shift());
   }
 
   // 今日の残り(復習・新規)と、いちばん近い次の復習
